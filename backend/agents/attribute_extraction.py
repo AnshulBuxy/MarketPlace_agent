@@ -1,0 +1,1 @@
+"""Attribute extraction agent placeholder."""

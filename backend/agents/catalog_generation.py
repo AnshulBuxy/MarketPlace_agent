@@ -1,0 +1,1 @@
+"""Catalog generation agent placeholder."""

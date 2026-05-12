@@ -1,0 +1,1 @@
+"""Seed marketplace data placeholder."""

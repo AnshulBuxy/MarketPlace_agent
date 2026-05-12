@@ -1,0 +1,1 @@
+"""Seed taxonomy data placeholder."""
