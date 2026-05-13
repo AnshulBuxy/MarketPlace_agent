@@ -68,9 +68,58 @@ export const ARTISANS: Artisan[] = [
   { id: "a-004", name: "Meera Iyer", cluster: "Kanchipuram, TN", craft: "Silk saree", language: "Tamil", phone: "+91 99••• 11290", joined: "2026-03-01", listings: 6, earnings: 54000 },
   { id: "a-005", name: "Anjali Das", cluster: "Shantiniketan, WB", craft: "Kantha embroidery", language: "Bengali", phone: "+91 98••• 77621", joined: "2026-02-19", listings: 11, earnings: 19800 },
   { id: "a-006", name: "Kavita Patil", cluster: "Paithan, Maharashtra", craft: "Paithani saree", language: "Marathi", phone: "+91 95••• 33012", joined: "2026-01-30", listings: 8, earnings: 47200 },
+  { id: "a-007", name: "Ravi Sharma", cluster: "Moradabad, UP", craft: "Brass metalwork", language: "Hindi", phone: "+91 93••• 44821", joined: "2026-03-15", listings: 5, earnings: 16800 },
 ];
 
 export const SUBMISSIONS: Submission[] = [
+  {
+    id: "s-1043",
+    artisanId: "a-007",
+    receivedAt: "2026-05-13T08:05:00Z",
+    status: "review",
+    thumbnail: "⛵",
+    voiceTranscript: "Yeh brass ka boat pen holder hai, handmade hai Moradabad se. Antique finish diya hai. Office desk ke liye perfect hai.",
+    voiceLang: "Hindi",
+    craft: "Handcrafted Metal Boat Pen Holder",
+    materials: ["Brass", "Antique finish lacquer"],
+    dimensions: "22 × 8 × 12 cm",
+    motifs: ["Sailing boat", "Nautical"],
+    confidence: 0.89,
+    suggestedPrice: { floor: 650, mid: 950, ceiling: 1300 },
+    routedTo: ["Amazon Karigar", "Etsy", "Meesho"],
+    drafts: [
+      {
+        marketplace: "Amazon Karigar",
+        title: "Handcrafted Brass Boat Pen Holder — Antique Finish Desk Organiser",
+        bullets: ["100% handmade by Moradabad brass artisan", "Antique finish with lacquer coating", "Functional pen/pencil holder shaped as sailing boat", "Perfect corporate gift or desk accessory"],
+        attributes: { Material: "Brass", Finish: "Antique lacquer", Origin: "Moradabad, UP", Use: "Desk organiser" },
+        price: 950,
+      },
+      {
+        marketplace: "Etsy",
+        title: "Brass Boat Pen Holder · Handmade India · Nautical Desk Decor · Moradabad Metalwork",
+        bullets: ["Hand-forged brass with antique patina", "Unique nautical desk accessory", "From India's brass capital — Moradabad"],
+        attributes: { Material: "Solid brass", Style: "Nautical / Vintage", Region: "Moradabad, India" },
+        price: 14,
+      },
+      {
+        marketplace: "Meesho",
+        title: "Metal Boat Pen Stand — Brass Antique Look",
+        bullets: ["Decorative + functional", "Handmade brass", "Great gifting option"],
+        attributes: { Material: "Brass", Type: "Pen stand" },
+        price: 850,
+      },
+    ],
+    logs: [
+      { agent: "Intake", ts: "08:05:04", message: "Photo + 18s voice note received from +91 93••• 44821" },
+      { agent: "Intake", ts: "08:05:10", message: "Transcribed Hindi → English (conf 0.96)" },
+      { agent: "Understanding", ts: "08:05:22", message: "Classified: Brass metalwork · Boat pen holder · 22cm (conf 0.89)", confidence: 0.89 },
+      { agent: "Routing", ts: "08:05:25", message: "Routed to Amazon Karigar, Etsy, Meesho" },
+      { agent: "Pricing", ts: "08:05:31", message: "Suggested ₹950 (band ₹650–₹1,300) using 9 comparables" },
+      { agent: "Catalog", ts: "08:05:52", message: "Generated 3 platform-native drafts" },
+      { agent: "Catalog", ts: "08:05:53", message: "Awaiting district admin review" },
+    ],
+  },
   {
     id: "s-1042",
     artisanId: "a-001",

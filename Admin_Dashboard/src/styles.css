@@ -88,3 +88,54 @@
   padding-inline: 1.25rem;
   max-width: 80rem;
 }
+
+/* ─── Catalog wizard animations ─── */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes celebrate-ring {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(3); opacity: 0; }
+}
+@keyframes bounce-check {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.25); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+@keyframes scan-pulse {
+  0% { box-shadow: 0 0 0 0 oklch(0.52 0.16 38 / 0.4); }
+  70% { box-shadow: 0 0 0 20px oklch(0.52 0.16 38 / 0); }
+  100% { box-shadow: 0 0 0 0 oklch(0.52 0.16 38 / 0); }
+}
+@keyframes scan-line {
+  0% { top: -10%; }
+  100% { top: 110%; }
+}
+@keyframes blur-reveal {
+  0% { filter: blur(20px); opacity: 0; transform: scale(0.95); }
+  100% { filter: blur(0); opacity: 1; transform: scale(1); }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
+@utility animate-scan-line {
+  animation: scan-line 2s linear infinite;
+}
+@utility animate-blur-reveal {
+  animation: blur-reveal 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@utility animate-pulse-glow {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}

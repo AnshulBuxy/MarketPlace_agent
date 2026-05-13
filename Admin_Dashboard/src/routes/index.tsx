@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
   component: Landing,
   head: () => ({
     meta: [
-      { title: "Karigari — Agentic AI for India's Artisans" },
+      { title: "Banao — Agentic AI for India's Artisans" },
       { name: "description", content: "A WhatsApp-native AI orchestrator that lists India's heritage, homemade and GI-tagged products on every marketplace — in five minutes, in any language." },
     ],
   }),
@@ -39,7 +39,7 @@ function Nav() {
           <span className="grid h-8 w-8 place-items-center rounded-md text-primary-foreground" style={{ background: "var(--gradient-warm)" }}>
             <Sparkles className="h-4 w-4" />
           </span>
-          <span className="font-display text-lg font-semibold tracking-tight">Karigari</span>
+          <span className="font-display text-lg font-semibold tracking-tight">Banao</span>
           <span className="ml-2 hidden rounded-full border border-border bg-secondary/60 px-2 py-0.5 text-[10px] uppercase tracking-widest text-muted-foreground sm:inline">PRD v1.0</span>
         </Link>
         <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
@@ -71,7 +71,7 @@ function Hero() {
             on every marketplace.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
-            Karigari helps Indian artisans of heritage, homemade and GI-tagged crafts list across Amazon Karigar, Etsy, Flipkart Samarth, Jaypore, Meesho and more — using only a photo and a voice note in their language.
+            Banao helps Indian artisans of heritage, homemade and GI-tagged crafts list across Amazon Karigar, Etsy, Flipkart Samarth, Jaypore, Meesho and more — using only a photo and a voice note in their language.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <a href="#cta" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-[var(--shadow-soft)] transition hover:translate-y-[-1px]">
@@ -160,7 +160,7 @@ function Marquee() {
 
 function Problem() {
   const items = [
-    { icon: Camera, title: "One photo. Many marketplaces.", body: "Artisans shoot a single product photo. Karigari adapts catalog drafts to each marketplace's schema, conventions and audience." },
+    { icon: Camera, title: "One photo. Many marketplaces.", body: "Artisans shoot a single product photo. Banao adapts catalog drafts to each marketplace's schema, conventions and audience." },
     { icon: Languages, title: "Voice in any language.", body: "Hindi, Tamil, Bhojpuri, Maithili, Bengali, Kannada, Marathi, Gujarati, Punjabi, Urdu, Assamese, Odia, Malayalam — captured natively." },
     { icon: ShieldCheck, title: "Human-in-the-loop quality.", body: "A regional admin reviews every draft before publish — preserving GI authenticity, attribution and provenance." },
   ];
@@ -175,7 +175,7 @@ function Problem() {
             India's heritage producers are deeply skilled — but listing a product across modern marketplaces takes days, fluency in English, photography studios and operational know-how most artisans don't have.
           </p>
           <p className="mt-4 text-base leading-relaxed text-ink-soft">
-            Karigari collapses that work into a five-minute WhatsApp exchange.
+            Banao collapses that work into a five-minute WhatsApp exchange.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-4 lg:col-span-7 sm:grid-cols-3">
@@ -196,7 +196,7 @@ function Problem() {
 
 function Flow() {
   const steps = [
-    { icon: Camera, title: "Capture", body: "Artisan sends a product photo to the Karigari WhatsApp number with an optional voice note." },
+    { icon: Camera, title: "Capture", body: "Artisan sends a product photo to the Banao WhatsApp number with an optional voice note." },
     { icon: Brain, title: "Understand", body: "Vision-language agents extract craft, materials, dimensions and motifs against an Indian craft taxonomy." },
     { icon: Workflow, title: "Route & draft", body: "Marketplace routing picks the best 2–4 channels; per-platform drafts are generated with titles, attributes, lifestyle imagery and price." },
     { icon: Eye, title: "Admin review", body: "A regional admin reviews drafts, edits low-confidence fields and approves — the human quality gate." },
@@ -398,11 +398,11 @@ function CTA() {
               Ready to bring a craft cluster<br /> <em className="text-accent">online in weeks, not years?</em>
             </h2>
             <p className="mt-5 max-w-xl text-background/70">
-              We're piloting Karigari with cooperatives, FPOs, NGOs and craft boards. Bring us a district — we'll bring the agents.
+              We're piloting Banao with cooperatives, FPOs, NGOs and craft boards. Bring us a district — we'll bring the agents.
             </p>
           </div>
           <div className="flex flex-wrap gap-3 lg:col-span-5 lg:justify-end">
-            <a href="mailto:hello@karigari.in" className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-medium text-accent-foreground transition hover:translate-y-[-1px]">
+            <a href="mailto:hello@banao.in" className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-medium text-accent-foreground transition hover:translate-y-[-1px]">
               <MessageCircle className="h-4 w-4" /> Request a pilot
             </a>
             <a href="#flow" className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-medium text-background transition hover:bg-white/10">
@@ -423,7 +423,7 @@ function Footer() {
           <span className="grid h-7 w-7 place-items-center rounded-md text-primary-foreground" style={{ background: "var(--gradient-warm)" }}>
             <Sparkles className="h-3.5 w-3.5" />
           </span>
-          <span className="font-display text-base text-ink">Karigari</span>
+          <span className="font-display text-base text-ink">Banao</span>
           <span className="ml-2 hidden sm:inline">— heritage commerce, intelligently routed.</span>
         </div>
         <div className="flex items-center gap-6">

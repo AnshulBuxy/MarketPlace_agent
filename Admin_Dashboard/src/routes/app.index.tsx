@@ -51,7 +51,11 @@ function InboxPage() {
               const a = getArtisan(s.artisanId)!;
               return (
                 <li key={s.id}>
-                  <Link to="/app/review/$id" params={{ id: s.id }} className="flex items-center gap-4 px-5 py-3 transition hover:bg-secondary/40">
+                  <Link 
+                    to={s.id === "s-1043" ? "/app/catalog/$id" : "/app/review/$id"} 
+                    params={{ id: s.id }} 
+                    className="flex items-center gap-4 px-5 py-3 transition hover:bg-secondary/40"
+                  >
                     <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-secondary text-xl">{s.thumbnail}</div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">

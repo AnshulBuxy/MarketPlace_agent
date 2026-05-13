@@ -18,6 +18,7 @@ import { Route as AppArtisansRouteImport } from './routes/app.artisans'
 import { Route as AppAnalyticsRouteImport } from './routes/app.analytics'
 import { Route as AppAgentsRouteImport } from './routes/app.agents'
 import { Route as AppReviewIdRouteImport } from './routes/app.review.$id'
+import { Route as AppCatalogIdRouteImport } from './routes/app.catalog.$id'
 
 const AppRoute = AppRouteImport.update({
   id: '/app',
@@ -64,6 +65,11 @@ const AppReviewIdRoute = AppReviewIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AppReviewRoute,
 } as any)
+const AppCatalogIdRoute = AppCatalogIdRouteImport.update({
+  id: '/catalog/$id',
+  path: '/catalog/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/app/listings': typeof AppListingsRoute
   '/app/review': typeof AppReviewRouteWithChildren
   '/app/': typeof AppIndexRoute
+  '/app/catalog/$id': typeof AppCatalogIdRoute
   '/app/review/$id': typeof AppReviewIdRoute
 }
 export interface FileRoutesByTo {
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/app/listings': typeof AppListingsRoute
   '/app/review': typeof AppReviewRouteWithChildren
   '/app': typeof AppIndexRoute
+  '/app/catalog/$id': typeof AppCatalogIdRoute
   '/app/review/$id': typeof AppReviewIdRoute
 }
 export interface FileRoutesById {
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/app/listings': typeof AppListingsRoute
   '/app/review': typeof AppReviewRouteWithChildren
   '/app/': typeof AppIndexRoute
+  '/app/catalog/$id': typeof AppCatalogIdRoute
   '/app/review/$id': typeof AppReviewIdRoute
 }
 export interface FileRouteTypes {
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/app/listings'
     | '/app/review'
     | '/app/'
+    | '/app/catalog/$id'
     | '/app/review/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/app/listings'
     | '/app/review'
     | '/app'
+    | '/app/catalog/$id'
     | '/app/review/$id'
   id:
     | '__root__'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/app/listings'
     | '/app/review'
     | '/app/'
+    | '/app/catalog/$id'
     | '/app/review/$id'
   fileRoutesById: FileRoutesById
 }
@@ -203,6 +215,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppReviewIdRouteImport
       parentRoute: typeof AppReviewRoute
     }
+    '/app/catalog/$id': {
+      id: '/app/catalog/$id'
+      path: '/catalog/$id'
+      fullPath: '/app/catalog/$id'
+      preLoaderRoute: typeof AppCatalogIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -225,6 +244,7 @@ interface AppRouteChildren {
   AppListingsRoute: typeof AppListingsRoute
   AppReviewRoute: typeof AppReviewRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
+  AppCatalogIdRoute: typeof AppCatalogIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -234,6 +254,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppListingsRoute: AppListingsRoute,
   AppReviewRoute: AppReviewRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
+  AppCatalogIdRoute: AppCatalogIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

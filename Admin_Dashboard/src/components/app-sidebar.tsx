@@ -40,7 +40,7 @@ export function AppSidebar() {
           </span>
           {!collapsed && (
             <div className="flex flex-col leading-tight">
-              <span className="font-display text-base font-semibold">Karigari</span>
+              <span className="font-display text-base font-semibold">Banao</span>
               <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Operator console</span>
             </div>
           )}
