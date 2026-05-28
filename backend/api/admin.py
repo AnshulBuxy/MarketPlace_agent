@@ -14,6 +14,7 @@ from ..models.artisan import Artisan
 from ..services.whatsapp import send_twilio_whatsapp_message
 from ..services.storage import StorageService
 from ..services.image_generation import ImageGenerationService
+from ..services.marketplace_pricing import find_marketplace_matches
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -202,6 +203,30 @@ async def get_submission(sub_id: str, session: AsyncSession = Depends(get_sessio
 			"phone": art.phone or "",
 			"language": art.language or "Hindi"
 		} if art else None
+	}
+
+
+@router.get("/submissions/{sub_id}/marketplace-pricing")
+async def get_marketplace_pricing(sub_id: str, session: AsyncSession = Depends(get_session)) -> dict:
+	"""Get four marketplace comparables from backend/agents/PriceData.json."""
+	try:
+		product_uuid = UUID(sub_id)
+	except ValueError:
+		raise HTTPException(status_code=400, detail="Invalid submission UUID")
+
+	query = select(Product).where(Product.id == product_uuid)
+	result = await session.execute(query)
+	p = result.scalar_one_or_none()
+	if not p:
+		raise HTTPException(status_code=404, detail="Submission not found")
+
+	attrs = p.attributes or {}
+	product_name = attrs.get("name") or p.user_provided_description or "Product"
+	description = attrs.get("description") or p.user_provided_description or ""
+	matches = find_marketplace_matches(str(product_name), str(description), limit=4)
+	return {
+		"submissionId": str(p.id),
+		"matches": matches,
 	}
 
 class GenerateCatalogRequest(BaseModel):
