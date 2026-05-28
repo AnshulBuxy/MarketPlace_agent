@@ -76,6 +76,8 @@ def parse_twilio_payload(payload: dict[str, Any]) -> TwilioInboundMessage:
 def build_twiml_message(body: str) -> str:
 	"""Build a TwiML response message."""
 	response = Element("Response")
+	if not body.strip():
+		return tostring(response, encoding="utf-8", xml_declaration=False).decode("utf-8")
 	message = SubElement(response, "Message")
 	message.text = body
 	return tostring(response, encoding="utf-8", xml_declaration=False).decode("utf-8")

@@ -1,6 +1,6 @@
 {
-  "acknowledgement": "Received! Processing your product.",
-  "image_too_small": "Photo thoda unclear hai, kya aap ek aur bhej sakte hain?",
-  "image_blurry": "Your image looks a bit blurry. I enhanced it and sent a preview.",
-  "voice_received": "Received! Processing your voice note."
+  "acknowledgement": "Hii, aapka product receive ho gaya hai 😊",
+  "image_too_small": "Photo thodi unclear hai, kya aap ek aur clearer image bhej sakte hain?",
+  "image_blurry": "Image thodi blurry lag rahi hai, maine enhance karke preview bhej diya hai.",
+  "voice_received": "Voice note receive ho gaya hai, main usko text me convert karke process kar raha hun 😊"
 }

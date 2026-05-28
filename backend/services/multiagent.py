@@ -59,14 +59,20 @@ class ConversationAgent:
 
 	def _build_prompt(self, context: dict[str, Any]) -> str:
 		return (
-			"You are a helpful assistant for marketplace product intake. "
+			"You are a helpful WhatsApp assistant for marketplace product intake. "
+			"Reply in simple, natural Hinglish unless the user clearly writes in English. "
+			"Keep the tone warm, human, and concise, like a real WhatsApp chat. "
+			"Use Roman Hindi mixed with English, and it is okay to add a light emoji occasionally. "
+			"Avoid formal wording. Prefer lines like: 'Hii, aapka product receive ho gaya hai 😊', "
+			"'Sab sahi hai, koi changes nahi karna', '800 rs ke aas paas', 'Photo thodi clear bhejiye'. "
+			"When asking for a number or a choice, make it sound natural and polite. "
 			"Return ONLY valid JSON with keys: action, reply, language, update_description, needs_extraction. "
 			"language must be english or hinglish. "
 			"action must be one of: request_image, request_clear_image, extract_and_summarize, confirm_summary, acknowledge. "
 			"If there is no usable image, action=request_image. "
 			"If image_quality is too_small or blurry, action=request_clear_image. "
 			"If image is available, action=extract_and_summarize and needs_extraction=true. "
-			"When extract_and_summarize, include {SUMMARY} in reply and ask for corrections. "
+			"When extract_and_summarize, include {SUMMARY} in reply and ask for corrections in Hinglish like: 'Sab sahi hai ya kuch change karna hai?'. "
 			"If user is correcting, keep action=extract_and_summarize and set update_description to the correction text. "
 			"Do not include any extra text.\n\n"
 			f"user_message: {context.get('user_message','')}\n"
@@ -128,10 +134,6 @@ class MultiAgentManager:
 		message = parse_twilio_payload(payload)
 		logger.info(f"[MULTIAGENT_MANAGER] Processing message from {message.from_number} media={bool(message.media)} text={message.body[:50] if message.body else 'None'}...")
 		session_state = await self._get_or_create_session(session, message.from_number)
-		language = self._detect_language(message.body)
-		if language:
-			session_state.language = language
-			logger.info(f"[MULTIAGENT_MANAGER] Detected language: {language}")
 
 		product = None
 		state = session_state.state_json or {}
@@ -153,10 +155,20 @@ class MultiAgentManager:
 		if session_state.product_id and not product:
 			product = await session.get(Product, session_state.product_id)
 
+		transcript = product.transcript if product and product.transcript else ""
+		message_text = message.body or transcript
+		if message.media and not message.body and transcript:
+			logger.info(f"[MULTIAGENT_MANAGER] Using transcribed audio text: {transcript[:120]}...")
+
+		language = self._detect_language(message_text)
+		if language:
+			session_state.language = language
+			logger.info(f"[MULTIAGENT_MANAGER] Detected language: {language}")
+
 		if image_quality:
 			state["last_image_quality"] = image_quality
 		context = {
-			"user_message": message.body or "",
+			"user_message": message_text,
 			"has_image": bool(product and (product.image_url or product.image_url_enhanced)),
 			"image_quality": image_quality,
 			"description": state.get("description", ""),
@@ -246,13 +258,14 @@ class MultiAgentManager:
 		if isinstance(materials, str):
 			materials = [materials]
 		lines = [
-			f"Name: {attributes.get('name', '')}",
+			f"Naam: {attributes.get('name', '')}",
 			f"Category: {attributes.get('category', '')}",
 			f"Materials: {', '.join(materials)}",
 			f"Dimensions: {attributes.get('dimensions', '')}",
 			f"Description: {attributes.get('description', '')}",
 		]
-		return "\n".join([line for line in lines if line.strip()])
+		summary = "\n".join([line for line in lines if line.strip()])
+		return f"Maine yeh samjha:\n{summary}"
 
 	@staticmethod
 	def _build_summary_replies(reply: str, summary: str) -> list[ConversationReply]:
@@ -265,8 +278,8 @@ class MultiAgentManager:
 	@staticmethod
 	def _default_reply(action: str) -> str:
 		if action == "request_clear_image":
-			return "Please send a clearer image so I can describe the product accurately."
-		return "Please send a product image first."
+			return "Photo thodi clear bhejiye, phir main product ko sahi se bata dunga 😊"
+		return "Pehle product ki image bhejiye, phir main aage badhunga 😊"
 
 	@staticmethod
 	def _normalize_quality(response_key: str) -> str:

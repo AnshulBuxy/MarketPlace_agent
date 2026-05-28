@@ -60,8 +60,11 @@ async def whatsapp_webhook(
 	)
 
 	# For now, send default acknowledgement
-	# The workflow will send more specific responses based on content
+	# Only greet when an image is received. For text follow-ups, stay silent here
+	# so the background workflow can continue the conversation without repetition.
 	response_text = templates.get("acknowledgement") or "Received. Processing your submission..."
+	if not message.media:
+		response_text = ""
 	
 	# Start conversational flow in background
 	logger.info("Webhook start workflow: from=%s", message.from_number)
