@@ -9,14 +9,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..config import Settings
 from ..models.conversation_session import ConversationSession
+from ..models.enums import MessageType
 from ..models.product import Product
 from ..services.llm import GeminiChatService, GeminiService
+from ..services.speech import SpeechService
 from ..services.storage import StorageService
 from ..services.whatsapp import (
 	parse_twilio_payload,
+	TwilioMedia,
 	send_twilio_whatsapp_media_message,
 	send_twilio_whatsapp_message,
 )
+from ..utils.http import fetch_bytes
 from ..utils.audit import log_event
 
 logger = logging.getLogger(__name__)
@@ -138,27 +142,40 @@ class MultiAgentManager:
 		product = None
 		state = session_state.state_json or {}
 		image_quality = state.get("last_image_quality", "")
+		message_type = MessageType.TEXT
+		message_text = message.body or ""
 		if message.media:
-			from ..agents.ingestion import ingest_twilio_message
+			if any(media.is_image() for media in message.media):
+				from ..agents.ingestion import ingest_twilio_message
 
-			logger.info(f"[INGESTION_AGENT] Starting media ingestion...")
-			result = await ingest_twilio_message(message, session, self._settings)
-			if result.product_id:
-				product = await session.get(Product, result.product_id)
-				session_state.product_id = product.id if product else None
-				image_quality = self._normalize_quality(result.response_key)
-				logger.info(f"[INGESTION_AGENT] Product created: id={product.id} quality={image_quality}")
+				logger.info(f"[INGESTION_AGENT] Starting media ingestion...")
+				result = await ingest_twilio_message(message, session, self._settings)
+				message_type = result.message_type
+				if result.product_id:
+					product = await session.get(Product, result.product_id)
+					session_state.product_id = product.id if product else None
+					image_quality = self._normalize_quality(result.response_key)
+					logger.info(f"[INGESTION_AGENT] Product created: id={product.id} quality={image_quality}")
+				else:
+					image_quality = self._normalize_quality(result.response_key)
+					logger.warning(f"[INGESTION_AGENT] Ingestion failed: {result.response_key}")
+			elif all(media.is_audio() for media in message.media):
+				message_type = MessageType.AUDIO
+				message_text = await self._transcribe_audio_message(message.media[0]) or ""
+				if message_text:
+					logger.info(f"[MULTIAGENT_MANAGER] Transcribed audio follow-up: {message_text[:120]}...")
+				if session_state.product_id:
+					product = await session.get(Product, session_state.product_id)
 			else:
-				image_quality = self._normalize_quality(result.response_key)
-				logger.warning(f"[INGESTION_AGENT] Ingestion failed: {result.response_key}")
+				# Keep the existing text flow intact for any other media types.
+				pass
 
 		if session_state.product_id and not product:
 			product = await session.get(Product, session_state.product_id)
 
 		transcript = product.transcript if product and product.transcript else ""
-		message_text = message.body or transcript
-		if message.media and not message.body and transcript:
-			logger.info(f"[MULTIAGENT_MANAGER] Using transcribed audio text: {transcript[:120]}...")
+		if not message_text:
+			message_text = transcript
 
 		language = self._detect_language(message_text)
 		if language:
@@ -211,6 +228,19 @@ class MultiAgentManager:
 		session_state.state_json = state
 		await session.flush()
 		return replies
+
+	async def _transcribe_audio_message(self, media: TwilioMedia) -> str | None:
+		"""Transcribe an inbound audio message without creating a new product."""
+		audio_bytes = await fetch_bytes(
+			media.url,
+			auth=(self._settings.twilio_account_sid, self._settings.twilio_auth_token) if self._settings.twilio_account_sid and self._settings.twilio_auth_token else None,
+			timeout_seconds=self._settings.http_timeout_seconds,
+			max_retries=self._settings.http_max_retries,
+		)
+		speech = SpeechService(self._settings)
+		content_type = media.content_type or "audio/mpeg"
+		ext = content_type.split("/")[-1] or "mp3"
+		return await speech.transcribe_audio(audio_bytes, filename=f"audio.{ext}", content_type=content_type)
 
 	async def send_replies(self, to_number: str, replies: list[ConversationReply]) -> None:
 		for reply in replies:

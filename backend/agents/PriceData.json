@@ -1,86 +1,786 @@
 [
     {
-        "product_name": "Nandgopala Radha Handpainted Madhubani Saree",
-        "description": "Hand-painted Madhubani Tussar silk saree featuring traditional Radha-Krishna motifs.",
+        "product_name": "Hand-painted Madhubani Tussar Silk Saree (Radha-Krishna Motif)",
+        "description": "Authentic hand-painted Madhubani Tussar silk saree featuring traditional Radha-Krishna motifs.",
         "marketplace_name": "BRLPS",
         "price": "12,999",
         "link": "https://shop.brlps.in/"
     },
     {
-        "product_name": "Nandgopala Radha Handpainted Madhubani Saree",
+        "product_name": "Traditional Madhubani Art Tussar Silk Saree",
         "description": "Authentic Madhubani art on Tussar silk, depicting mythological scenes.",
         "marketplace_name": "Srijani",
         "price": "6,500",
         "link": "https://www.srijani.in/"
     },
     {
-        "product_name": "Nandgopala Radha Handpainted Madhubani Saree",
+        "product_name": "Premium Hand-painted Madhubani Designer Saree",
         "description": "Premium hand-painted Madhubani saree with intricate detailing on the pallu.",
         "marketplace_name": "Sujatra",
         "price": "10,000",
         "link": "https://www.sujatra.com/"
     },
     {
-        "product_name": "Nandgopala Radha Handpainted Madhubani Saree",
+        "product_name": "Hand-painted Radha-Krishna Motif Linen Saree",
         "description": "Hand-painted linen Madhubani saree featuring Radha and Krishna figures.",
         "marketplace_name": "Okhai",
         "price": "10,800",
         "link": "https://okhai.org/"
     },
     {
-        "product_name": "Dhokra Fusion Art Brass Wall Painting",
+        "product_name": "Dhokra Tribal Metal & Painting Wall Decor",
         "description": "Handcrafted Dhokra metal art integrated with tribal painting for wall decor.",
         "marketplace_name": "Amazon India",
         "price": "2,500",
         "link": "https://www.amazon.in/"
     },
     {
-        "product_name": "Dhokra Fusion Art Brass Wall Painting",
+        "product_name": "Tribal Dhokra Lost-Wax Casting Wall Art",
         "description": "Tribal Dhokra wall art using lost-wax casting, framed for home decor.",
         "marketplace_name": "Flipkart",
         "price": "1,850",
         "link": "https://www.flipkart.com/"
     },
     {
-        "product_name": "Dhokra Fusion Art Brass Wall Painting",
+        "product_name": "Dokra Metal & Canvas Fusion Wall Hanging",
         "description": "Traditional Dokra metal craft fused with canvas art, perfect for gifting.",
         "marketplace_name": "Kraftly",
         "price": "2,200",
         "link": "https://kraftly.com/"
     },
     {
-        "product_name": "Dhokra Fusion Art Brass Wall Painting",
+        "product_name": "Handcrafted Tribal Dhokra Figurine Art",
         "description": "Exquisite handcrafted tribal art piece featuring classic Dhokra figurines.",
         "marketplace_name": "Pepperfry",
         "price": "2,999",
         "link": "https://www.pepperfry.com/"
     },
     {
-        "product_name": "Assam handloom silk cotton Mekhela Chador",
+        "product_name": "Handwoven Traditional Silk-Cotton Mekhela Chador",
         "description": "Traditional Assamese handloom Mekhela Chador, silk-cotton blend.",
         "marketplace_name": "MugaSilk",
         "price": "3,499",
         "link": "https://www.mugasilk.in/"
     },
     {
-        "product_name": "Assam handloom silk cotton Mekhela Chador",
+        "product_name": "Authentic Assamese Handloom Mekhela Chador Set",
         "description": "Authentic hand-woven Mekhela Chador with a matching blouse piece.",
         "marketplace_name": "AssamProducts",
         "price": "3,250",
         "link": "https://assamproducts.com/"
     },
     {
-        "product_name": "Assam handloom silk cotton Mekhela Chador",
+        "product_name": "Premium Assamese Silk-Cotton Blend Mekhela Chador",
         "description": "Premium handloom silk-cotton blend Mekhela Chador.",
         "marketplace_name": "IndiaHandmade",
         "price": "4,799",
         "link": "https://www.indiahandmade.com/"
     },
     {
-        "product_name": "Assam handloom silk cotton Mekhela Chador",
+        "product_name": "Hand-crafted Traditional Assamese Mekhela Chador",
         "description": "Hand-crafted Assamese Mekhela Chador set with traditional weaving.",
         "marketplace_name": "IndiaMART",
         "price": "1,500",
         "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Kangra Painting",
+        "description": "Artisan-crafted Kangra Painting, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Flipkart",
+        "price": "\u20b94237",
+        "link": "https://www.flipkart.com/"
+    },
+    {
+        "product_name": "Kashmir Saffron",
+        "description": "Artisan-crafted Kashmir Saffron, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Jaypore",
+        "price": "\u20b92678",
+        "link": "https://www.jaypore.com/"
+    },
+    {
+        "product_name": "Varanasi Stone Craft Vase",
+        "description": "Artisan-crafted Varanasi Stone Craft Vase, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b94436",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Chanderi Silk Saree",
+        "description": "Artisan-crafted Chanderi Silk Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b94745",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Kangra Painting",
+        "description": "Artisan-crafted Kangra Painting, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Amazon India",
+        "price": "\u20b96190",
+        "link": "https://www.amazon.in/"
+    },
+    {
+        "product_name": "Dhokra Brass Figurine",
+        "description": "Artisan-crafted Dhokra Brass Figurine, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Jaypore",
+        "price": "\u20b95151",
+        "link": "https://www.jaypore.com/"
+    },
+    {
+        "product_name": "Dhokra Brass Figurine",
+        "description": "Artisan-crafted Dhokra Brass Figurine, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b94431",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Bengal Pattachitra",
+        "description": "Artisan-crafted Bengal Pattachitra, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Utsav Fashion",
+        "price": "\u20b92747",
+        "link": "https://www.utsavfashion.com/"
+    },
+    {
+        "product_name": "Mithila Makhana",
+        "description": "Artisan-crafted Mithila Makhana, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Utsav Fashion",
+        "price": "\u20b91851",
+        "link": "https://www.utsavfashion.com/"
+    },
+    {
+        "product_name": "Maheshwar Cotton Saree",
+        "description": "Artisan-crafted Maheshwar Cotton Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b911773",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Lucknow Chikankari Kurti",
+        "description": "Artisan-crafted Lucknow Chikankari Kurti, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Flipkart",
+        "price": "\u20b93334",
+        "link": "https://www.flipkart.com/"
+    },
+    {
+        "product_name": "Jamdani Saree",
+        "description": "Artisan-crafted Jamdani Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Fabindia",
+        "price": "\u20b913310",
+        "link": "https://www.fabindia.com/"
+    },
+    {
+        "product_name": "Kachchh Shawl",
+        "description": "Artisan-crafted Kachchh Shawl, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Amazon India",
+        "price": "\u20b914007",
+        "link": "https://www.amazon.in/"
+    },
+    {
+        "product_name": "Indore Leather Craft Table",
+        "description": "Artisan-crafted Indore Leather Craft Table, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Fabindia",
+        "price": "\u20b94214",
+        "link": "https://www.fabindia.com/"
+    },
+    {
+        "product_name": "Maheshwar Cotton Saree",
+        "description": "Artisan-crafted Maheshwar Cotton Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b93007",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Indore Leather Craft Table",
+        "description": "Artisan-crafted Indore Leather Craft Table, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Craftsvilla",
+        "price": "\u20b91603",
+        "link": "https://www.craftsvilla.com/"
+    },
+    {
+        "product_name": "Jamdani Saree",
+        "description": "Artisan-crafted Jamdani Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b97981",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Bengal Pattachitra",
+        "description": "Artisan-crafted Bengal Pattachitra, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Jaypore",
+        "price": "\u20b93030",
+        "link": "https://www.jaypore.com/"
+    },
+    {
+        "product_name": "Kashmir Saffron",
+        "description": "Artisan-crafted Kashmir Saffron, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Craftsvilla",
+        "price": "\u20b9849",
+        "link": "https://www.craftsvilla.com/"
+    },
+    {
+        "product_name": "Kachchh Shawl",
+        "description": "Artisan-crafted Kachchh Shawl, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Craftsvilla",
+        "price": "\u20b912520",
+        "link": "https://www.craftsvilla.com/"
+    },
+    {
+        "product_name": "Indore Leather Craft Table",
+        "description": "Artisan-crafted Indore Leather Craft Table, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Utsav Fashion",
+        "price": "\u20b92247",
+        "link": "https://www.utsavfashion.com/"
+    },
+    {
+        "product_name": "Dhokra Brass Figurine",
+        "description": "Artisan-crafted Dhokra Brass Figurine, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b95773",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Maheshwar Cotton Saree",
+        "description": "Artisan-crafted Maheshwar Cotton Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b912025",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Gajapati Date Palm Jaggery",
+        "description": "Artisan-crafted Gajapati Date Palm Jaggery, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Amazon India",
+        "price": "\u20b93931",
+        "link": "https://www.amazon.in/"
+    },
+    {
+        "product_name": "Gajapati Date Palm Jaggery",
+        "description": "Artisan-crafted Gajapati Date Palm Jaggery, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Utsav Fashion",
+        "price": "\u20b92010",
+        "link": "https://www.utsavfashion.com/"
+    },
+    {
+        "product_name": "Chanderi Silk Saree",
+        "description": "Artisan-crafted Chanderi Silk Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Flipkart",
+        "price": "\u20b98066",
+        "link": "https://www.flipkart.com/"
+    },
+    {
+        "product_name": "Varanasi Stone Craft Vase",
+        "description": "Artisan-crafted Varanasi Stone Craft Vase, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Flipkart",
+        "price": "\u20b93185",
+        "link": "https://www.flipkart.com/"
+    },
+    {
+        "product_name": "Dhokra Brass Figurine",
+        "description": "Artisan-crafted Dhokra Brass Figurine, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Amazon India",
+        "price": "\u20b95738",
+        "link": "https://www.amazon.in/"
+    },
+    {
+        "product_name": "Hathras Hing",
+        "description": "Artisan-crafted Hathras Hing, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b93911",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Dhokra Brass Figurine",
+        "description": "Artisan-crafted Dhokra Brass Figurine, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Amazon India",
+        "price": "\u20b96310",
+        "link": "https://www.amazon.in/"
+    },
+    {
+        "product_name": "Coorg Green Cardamom",
+        "description": "Artisan-crafted Coorg Green Cardamom, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Jaypore",
+        "price": "\u20b91156",
+        "link": "https://www.jaypore.com/"
+    },
+    {
+        "product_name": "Gajapati Date Palm Jaggery",
+        "description": "Artisan-crafted Gajapati Date Palm Jaggery, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Utsav Fashion",
+        "price": "\u20b94300",
+        "link": "https://www.utsavfashion.com/"
+    },
+    {
+        "product_name": "Jamdani Saree",
+        "description": "Artisan-crafted Jamdani Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Craftsvilla",
+        "price": "\u20b911196",
+        "link": "https://www.craftsvilla.com/"
+    },
+    {
+        "product_name": "Hathras Hing",
+        "description": "Artisan-crafted Hathras Hing, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b9804",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Thanjavur Art Plate",
+        "description": "Artisan-crafted Thanjavur Art Plate, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Jaypore",
+        "price": "\u20b94780",
+        "link": "https://www.jaypore.com/"
+    },
+    {
+        "product_name": "Kangra Painting",
+        "description": "Artisan-crafted Kangra Painting, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b94346",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Jamdani Saree",
+        "description": "Artisan-crafted Jamdani Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Craftsvilla",
+        "price": "\u20b911618",
+        "link": "https://www.craftsvilla.com/"
+    },
+    {
+        "product_name": "Varanasi Stone Craft Vase",
+        "description": "Artisan-crafted Varanasi Stone Craft Vase, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Craftsvilla",
+        "price": "\u20b92330",
+        "link": "https://www.craftsvilla.com/"
+    },
+    {
+        "product_name": "Maheshwar Cotton Saree",
+        "description": "Artisan-crafted Maheshwar Cotton Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Fabindia",
+        "price": "\u20b99624",
+        "link": "https://www.fabindia.com/"
+    },
+    {
+        "product_name": "Thanjavur Art Plate",
+        "description": "Artisan-crafted Thanjavur Art Plate, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Jaypore",
+        "price": "\u20b94506",
+        "link": "https://www.jaypore.com/"
+    },
+    {
+        "product_name": "Kachchh Shawl",
+        "description": "Artisan-crafted Kachchh Shawl, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Utsav Fashion",
+        "price": "\u20b914952",
+        "link": "https://www.utsavfashion.com/"
+    },
+    {
+        "product_name": "Chanderi Silk Saree",
+        "description": "Artisan-crafted Chanderi Silk Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b95768",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Madhubani Painting",
+        "description": "Artisan-crafted Madhubani Painting, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Utsav Fashion",
+        "price": "\u20b95294",
+        "link": "https://www.utsavfashion.com/"
+    },
+    {
+        "product_name": "Dhokra Brass Figurine",
+        "description": "Artisan-crafted Dhokra Brass Figurine, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Flipkart",
+        "price": "\u20b96626",
+        "link": "https://www.flipkart.com/"
+    },
+    {
+        "product_name": "Chanderi Silk Saree",
+        "description": "Artisan-crafted Chanderi Silk Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Fabindia",
+        "price": "\u20b914417",
+        "link": "https://www.fabindia.com/"
+    },
+    {
+        "product_name": "Kachchh Shawl",
+        "description": "Artisan-crafted Kachchh Shawl, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Amazon India",
+        "price": "\u20b913120",
+        "link": "https://www.amazon.in/"
+    },
+    {
+        "product_name": "Indore Leather Craft Table",
+        "description": "Artisan-crafted Indore Leather Craft Table, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b93646",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Gond Art",
+        "description": "Artisan-crafted Gond Art, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b93913",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Jamdani Saree",
+        "description": "Artisan-crafted Jamdani Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b96787",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Channapatna Wooden Toy",
+        "description": "Artisan-crafted Channapatna Wooden Toy, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Amazon India",
+        "price": "\u20b94486",
+        "link": "https://www.amazon.in/"
+    },
+    {
+        "product_name": "Jamdani Saree",
+        "description": "Artisan-crafted Jamdani Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Fabindia",
+        "price": "\u20b914635",
+        "link": "https://www.fabindia.com/"
+    },
+    {
+        "product_name": "Thanjavur Art Plate",
+        "description": "Artisan-crafted Thanjavur Art Plate, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b94017",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Bengal Pattachitra",
+        "description": "Artisan-crafted Bengal Pattachitra, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Jaypore",
+        "price": "\u20b94139",
+        "link": "https://www.jaypore.com/"
+    },
+    {
+        "product_name": "Gajapati Date Palm Jaggery",
+        "description": "Artisan-crafted Gajapati Date Palm Jaggery, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Jaypore",
+        "price": "\u20b93000",
+        "link": "https://www.jaypore.com/"
+    },
+    {
+        "product_name": "Gajapati Date Palm Jaggery",
+        "description": "Artisan-crafted Gajapati Date Palm Jaggery, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b93431",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Indore Leather Craft Table",
+        "description": "Artisan-crafted Indore Leather Craft Table, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Fabindia",
+        "price": "\u20b91314",
+        "link": "https://www.fabindia.com/"
+    },
+    {
+        "product_name": "Gond Art",
+        "description": "Artisan-crafted Gond Art, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Jaypore",
+        "price": "\u20b94801",
+        "link": "https://www.jaypore.com/"
+    },
+    {
+        "product_name": "Channapatna Wooden Toy",
+        "description": "Artisan-crafted Channapatna Wooden Toy, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b92867",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Chanderi Silk Saree",
+        "description": "Artisan-crafted Chanderi Silk Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Amazon India",
+        "price": "\u20b99851",
+        "link": "https://www.amazon.in/"
+    },
+    {
+        "product_name": "Ladakh Thangka",
+        "description": "Artisan-crafted Ladakh Thangka, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Flipkart",
+        "price": "\u20b92166",
+        "link": "https://www.flipkart.com/"
+    },
+    {
+        "product_name": "Channapatna Wooden Toy",
+        "description": "Artisan-crafted Channapatna Wooden Toy, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Flipkart",
+        "price": "\u20b93443",
+        "link": "https://www.flipkart.com/"
+    },
+    {
+        "product_name": "Mithila Makhana",
+        "description": "Artisan-crafted Mithila Makhana, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b94573",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Kachchh Shawl",
+        "description": "Artisan-crafted Kachchh Shawl, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b97868",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Thanjavur Art Plate",
+        "description": "Artisan-crafted Thanjavur Art Plate, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Amazon India",
+        "price": "\u20b94201",
+        "link": "https://www.amazon.in/"
+    },
+    {
+        "product_name": "Varanasi Stone Craft Vase",
+        "description": "Artisan-crafted Varanasi Stone Craft Vase, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Flipkart",
+        "price": "\u20b94004",
+        "link": "https://www.flipkart.com/"
+    },
+    {
+        "product_name": "Gond Art",
+        "description": "Artisan-crafted Gond Art, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b92973",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Jamdani Saree",
+        "description": "Artisan-crafted Jamdani Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Craftsvilla",
+        "price": "\u20b93768",
+        "link": "https://www.craftsvilla.com/"
+    },
+    {
+        "product_name": "Chanderi Silk Saree",
+        "description": "Artisan-crafted Chanderi Silk Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Flipkart",
+        "price": "\u20b911815",
+        "link": "https://www.flipkart.com/"
+    },
+    {
+        "product_name": "Lucknow Chikankari Kurti",
+        "description": "Artisan-crafted Lucknow Chikankari Kurti, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Flipkart",
+        "price": "\u20b93596",
+        "link": "https://www.flipkart.com/"
+    },
+    {
+        "product_name": "Kashmir Saffron",
+        "description": "Artisan-crafted Kashmir Saffron, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Amazon India",
+        "price": "\u20b92552",
+        "link": "https://www.amazon.in/"
+    },
+    {
+        "product_name": "Kangra Painting",
+        "description": "Artisan-crafted Kangra Painting, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Jaypore",
+        "price": "\u20b91739",
+        "link": "https://www.jaypore.com/"
+    },
+    {
+        "product_name": "Hathras Hing",
+        "description": "Artisan-crafted Hathras Hing, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b93196",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Thanjavur Art Plate",
+        "description": "Artisan-crafted Thanjavur Art Plate, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Jaypore",
+        "price": "\u20b94777",
+        "link": "https://www.jaypore.com/"
+    },
+    {
+        "product_name": "Channapatna Wooden Toy",
+        "description": "Artisan-crafted Channapatna Wooden Toy, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Jaypore",
+        "price": "\u20b92723",
+        "link": "https://www.jaypore.com/"
+    },
+    {
+        "product_name": "Maheshwar Cotton Saree",
+        "description": "Artisan-crafted Maheshwar Cotton Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Flipkart",
+        "price": "\u20b911701",
+        "link": "https://www.flipkart.com/"
+    },
+    {
+        "product_name": "Dhokra Brass Figurine",
+        "description": "Artisan-crafted Dhokra Brass Figurine, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b95381",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Kangra Painting",
+        "description": "Artisan-crafted Kangra Painting, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Flipkart",
+        "price": "\u20b95776",
+        "link": "https://www.flipkart.com/"
+    },
+    {
+        "product_name": "Ladakh Thangka",
+        "description": "Artisan-crafted Ladakh Thangka, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b91014",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Hathras Hing",
+        "description": "Artisan-crafted Hathras Hing, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b93209",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Chanderi Silk Saree",
+        "description": "Artisan-crafted Chanderi Silk Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Utsav Fashion",
+        "price": "\u20b96043",
+        "link": "https://www.utsavfashion.com/"
+    },
+    {
+        "product_name": "Kachchh Shawl",
+        "description": "Artisan-crafted Kachchh Shawl, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Craftsvilla",
+        "price": "\u20b913643",
+        "link": "https://www.craftsvilla.com/"
+    },
+    {
+        "product_name": "Dhokra Brass Figurine",
+        "description": "Artisan-crafted Dhokra Brass Figurine, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Craftsvilla",
+        "price": "\u20b93941",
+        "link": "https://www.craftsvilla.com/"
+    },
+    {
+        "product_name": "Lucknow Chikankari Kurti",
+        "description": "Artisan-crafted Lucknow Chikankari Kurti, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b91288",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Madhubani Painting",
+        "description": "Artisan-crafted Madhubani Painting, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Craftsvilla",
+        "price": "\u20b95726",
+        "link": "https://www.craftsvilla.com/"
+    },
+    {
+        "product_name": "Channapatna Wooden Toy",
+        "description": "Artisan-crafted Channapatna Wooden Toy, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b93083",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Channapatna Wooden Toy",
+        "description": "Artisan-crafted Channapatna Wooden Toy, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b93743",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Chanderi Silk Saree",
+        "description": "Artisan-crafted Chanderi Silk Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Flipkart",
+        "price": "\u20b94342",
+        "link": "https://www.flipkart.com/"
+    },
+    {
+        "product_name": "Hathras Hing",
+        "description": "Artisan-crafted Hathras Hing, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Utsav Fashion",
+        "price": "\u20b91420",
+        "link": "https://www.utsavfashion.com/"
+    },
+    {
+        "product_name": "Thanjavur Art Plate",
+        "description": "Artisan-crafted Thanjavur Art Plate, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Flipkart",
+        "price": "\u20b93317",
+        "link": "https://www.flipkart.com/"
+    },
+    {
+        "product_name": "Ladakh Thangka",
+        "description": "Artisan-crafted Ladakh Thangka, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Craftsvilla",
+        "price": "\u20b91955",
+        "link": "https://www.craftsvilla.com/"
+    },
+    {
+        "product_name": "Dhokra Brass Figurine",
+        "description": "Artisan-crafted Dhokra Brass Figurine, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b97582",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Indore Leather Craft Table",
+        "description": "Artisan-crafted Indore Leather Craft Table, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Amazon India",
+        "price": "\u20b9686",
+        "link": "https://www.amazon.in/"
+    },
+    {
+        "product_name": "Hathras Hing",
+        "description": "Artisan-crafted Hathras Hing, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b94757",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Dhokra Brass Figurine",
+        "description": "Artisan-crafted Dhokra Brass Figurine, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Utsav Fashion",
+        "price": "\u20b97480",
+        "link": "https://www.utsavfashion.com/"
+    },
+    {
+        "product_name": "Kangra Painting",
+        "description": "Artisan-crafted Kangra Painting, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b95103",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Channapatna Wooden Toy",
+        "description": "Artisan-crafted Channapatna Wooden Toy, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Pepperfry",
+        "price": "\u20b93038",
+        "link": "https://www.pepperfry.com/"
+    },
+    {
+        "product_name": "Hathras Hing",
+        "description": "Artisan-crafted Hathras Hing, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b93220",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Gond Art",
+        "description": "Artisan-crafted Gond Art, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "IndiaMART",
+        "price": "\u20b91914",
+        "link": "https://www.indiamart.com/"
+    },
+    {
+        "product_name": "Jamdani Saree",
+        "description": "Artisan-crafted Jamdani Saree, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Amazon India",
+        "price": "\u20b94627",
+        "link": "https://www.amazon.in/"
+    },
+    {
+        "product_name": "Gond Art",
+        "description": "Artisan-crafted Gond Art, quality-assured and sourced for authentic Indian traditional aesthetics.",
+        "marketplace_name": "Jaypore",
+        "price": "\u20b91162",
+        "link": "https://www.jaypore.com/"
     }
 ]

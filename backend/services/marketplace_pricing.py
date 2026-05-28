@@ -69,13 +69,47 @@ def _parse_price(value: Any) -> int | None:
 	return int(clean) if clean else None
 
 
+def _domain_bias(query: str, candidate: str) -> float:
+	query_norm = _normalize_text(query)
+	candidate_norm = _normalize_text(candidate)
+	art_keywords = {"painting", "paint", "art", "wall", "canvas", "decor", "décor", "frame", "framed", "mural", "illustration"}
+	fashion_keywords = {"saree", "sari", "silk", "blouse", "pallu", "lehenga", "kurta", "dupatta"}
+	query_tokens = set(query_norm.split())
+	candidate_tokens = set(candidate_norm.split())
+
+	query_is_art = bool(query_tokens & art_keywords)
+	query_is_fashion = bool(query_tokens & fashion_keywords)
+	candidate_is_art = bool(candidate_tokens & art_keywords)
+	candidate_is_fashion = bool(candidate_tokens & fashion_keywords)
+
+	bias = 0.0
+	if query_is_art:
+		if candidate_is_art:
+			bias += 0.28
+		if candidate_is_fashion:
+			bias -= 0.45
+	if query_is_fashion:
+		if candidate_is_fashion:
+			bias += 0.28
+		if candidate_is_art:
+			bias -= 0.45
+
+	# Extra nudge when the candidate clearly matches the same visual category.
+	if query_is_art and {"painting", "wall", "canvas", "art"} & candidate_tokens:
+		bias += 0.12
+	if query_is_fashion and {"saree", "silk", "pallu", "blouse"} & candidate_tokens:
+		bias += 0.12
+
+	return bias
+
+
 def find_marketplace_matches(product_name: str, description: str, limit: int = 4) -> list[dict[str, Any]]:
 	query = f"{product_name} {description}".strip()
 	items = _load_price_data()
 	matched_items: list[dict[str, Any]] = []
 	for item in items:
 		candidate = f"{item.get('product_name', '')} {item.get('description', '')}"
-		score = _similarity(query, candidate)
+		score = min(max(_similarity(query, candidate) + _domain_bias(query, candidate), 0.0), 1.0)
 		matched_items.append(
 			{
 				"productName": item.get("product_name", ""),

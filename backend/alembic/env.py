@@ -14,6 +14,7 @@ from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config, create_async_engine
 
 from backend.config import get_settings
+from backend.db import build_connect_args
 from backend.models import Base
 
 config = context.config
@@ -54,17 +55,8 @@ def do_run_migrations(connection) -> None:
 
 async def run_migrations_online() -> None:
     """Run migrations in online mode."""
-    # Build an async engine explicitly so we can pass proper connect args
-    # for asyncpg (async driver) and avoid passing url query params like
-    # `sslmode` directly to asyncpg.connect (which raises a TypeError).
-    db_url = config.get_main_option("sqlalchemy.url")
-    connect_args = {}
-    # If the URL explicitly requests sslmode=require (common with Supabase),
-    # instruct asyncpg via SQLAlchemy to enable SSL by setting `ssl` in
-    # connect_args. asyncpg expects an `ssl` value (True or SSLContext),
-    # not an `sslmode` keyword.
-    if db_url and ("sslmode=require" in db_url or "supabase.co" in db_url):
-        connect_args = {"ssl": True}
+    db_url = settings.database_url
+    connect_args = build_connect_args(db_url)
 
     connectable = create_async_engine(
         db_url,

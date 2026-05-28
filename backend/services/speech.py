@@ -19,12 +19,14 @@ class SpeechService:
 		filename: str,
 		content_type: str,
 	) -> str | None:
-		"""Transcribe audio using Whisper API."""
-		if not self._settings.openai_api_key:
+		"""Transcribe audio using Groq Whisper when available, otherwise OpenAI Whisper."""
+		provider_config = self._get_provider_config()
+		if not provider_config:
 			return None
 
-		headers = {"Authorization": f"Bearer {self._settings.openai_api_key}"}
-		data = {"model": self._settings.whisper_model}
+		api_base_url, api_key, model = provider_config
+		headers = {"Authorization": f"Bearer {api_key}"}
+		data = {"model": model}
 		files = {"file": (filename, audio_bytes, content_type)}
 		last_error: Exception | None = None
 
@@ -32,7 +34,7 @@ class SpeechService:
 			try:
 				async with httpx.AsyncClient(timeout=self._settings.http_timeout_seconds) as client:
 					response = await client.post(
-						"https://api.openai.com/v1/audio/transcriptions",
+						f"{api_base_url}/audio/transcriptions",
 						headers=headers,
 						data=data,
 						files=files,
@@ -48,4 +50,12 @@ class SpeechService:
 				raise
 		if last_error:
 			raise last_error
+		return None
+
+	def _get_provider_config(self) -> tuple[str, str, str] | None:
+		"""Return (api_base_url, api_key, model) for the first available transcription provider."""
+		if self._settings.groq_api_key:
+			return ("https://api.groq.com/openai/v1", self._settings.groq_api_key, self._settings.groq_whisper_model)
+		if self._settings.openai_api_key:
+			return ("https://api.openai.com/v1", self._settings.openai_api_key, self._settings.whisper_model)
 		return None

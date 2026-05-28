@@ -30,3 +30,11 @@ export async function generateCatalogImages(id: string, styles: string[]) {
   }
   return res.json();
 }
+
+export async function fetchMarketplacePricing(id: string) {
+  const res = await fetch(`${API_BASE_URL}/admin/submissions/${id}/marketplace-pricing`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch marketplace pricing: ${res.statusText}`);
+  }
+  return res.json();
+}

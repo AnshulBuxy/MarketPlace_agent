@@ -49,6 +49,7 @@ class Settings(BaseSettings):
 	google_gemini_flash_model: str = "gemini-1.5-flash"
 	groq_api_key: str | None = None
 	groq_fast_routing_model: str = "llama3-70b-8192"
+	groq_whisper_model: str = "whisper-large-v3"
 	huggingface_api_token: str | None = None
 	hf_inference_base_url: str = "https://api-inference.huggingface.co/models"
 	hf_text_model: str | None = None

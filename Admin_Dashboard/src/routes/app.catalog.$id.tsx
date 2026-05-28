@@ -9,7 +9,7 @@ import {
 
 import heroOriginal from "@/assets/Products/Origin_Image.png";
 
-import { fetchSubmission, generateCatalogImages } from "@/lib/api";
+import { fetchSubmission, fetchMarketplacePricing, generateCatalogImages } from "@/lib/api";
 
 export const Route = createFileRoute("/app/catalog/$id")({
   component: CatalogWizard,
@@ -54,12 +54,45 @@ function ConfidenceBar({ label, value }: { label: string; value: number }) {
   );
 }
 
+function calculatePricePrediction(matches: any[]) {
+  const prices = matches
+    .map((match) => Number(match?.price))
+    .filter((price) => Number.isFinite(price) && price > 0);
+
+  if (!prices.length) {
+    return { floor: 0, recommended: 0, ceiling: 0 };
+  }
+
+  const weightedTotal = matches.reduce((sum, match) => {
+    const price = Number(match?.price);
+    if (!Number.isFinite(price) || price <= 0) return sum;
+    const fit = typeof match?.score === "number" ? match.score : (typeof match?.fit === "number" ? match.fit / 100 : 1);
+    return sum + (price * Math.max(fit, 0.1));
+  }, 0);
+  const totalWeight = matches.reduce((sum, match) => {
+    const price = Number(match?.price);
+    if (!Number.isFinite(price) || price <= 0) return sum;
+    const fit = typeof match?.score === "number" ? match.score : (typeof match?.fit === "number" ? match.fit / 100 : 1);
+    return sum + Math.max(fit, 0.1);
+  }, 0);
+
+  const average = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+  const recommended = totalWeight > 0 ? weightedTotal / totalWeight : average;
+
+  return {
+    floor: Math.round(Math.min(...prices) / 50) * 50,
+    recommended: Math.round(recommended / 50) * 50,
+    ceiling: Math.round(Math.max(...prices) / 50) * 50,
+  };
+}
+
 /* ─── main component ─── */
 
 function CatalogWizard() {
   const { id } = Route.useParams() as { id: string };
   const [submission, setSubmission] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [marketplaceMatches, setMarketplaceMatches] = useState<any[]>([]);
 
   useEffect(() => {
     fetchSubmission(id).then(sub => {
@@ -70,6 +103,18 @@ function CatalogWizard() {
       }
     }).catch(console.error);
   }, [id]);
+
+  useEffect(() => {
+    if (!submission) return;
+    fetchMarketplacePricing(id)
+      .then((result) => {
+        setMarketplaceMatches(Array.isArray(result?.matches) ? result.matches : []);
+      })
+      .catch((error) => {
+        console.error("Failed to load marketplace pricing matches:", error);
+        setMarketplaceMatches([]);
+      });
+  }, [submission, id]);
 
   const productInfo = submission ? {
     name: submission.craft,
@@ -98,6 +143,8 @@ function CatalogWizard() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [genSubStep, setGenSubStep] = useState(0);
   const [catalogImages, setCatalogImages] = useState<any[]>([]);
+  const pricingMatches = marketplaceMatches.length ? marketplaceMatches : MARKETPLACES;
+  const pricePrediction = calculatePricePrediction(pricingMatches);
 
   // Format AI IMAGES state dynamically once submission is fetched
   useEffect(() => {
@@ -116,7 +163,7 @@ function CatalogWizard() {
         images.push({ label: "Detail Close-up", img: dbMedia[3], bg: "from-rose-700/20 to-amber-600/20", base: false });
       }
       setCatalogImages(images);
-      
+
       // Auto-select all available images by default
       setSelectedImages(new Set(images.map((_, i) => i)));
     }
@@ -147,16 +194,16 @@ function CatalogWizard() {
       const generate = async () => {
         try {
           const result = await generateCatalogImages(id, ["studio_white"]);
-          
+
           if (result && result.mediaUrls) {
             setGenSubStep(4); // Finalizing shots
-            
+
             const dbMedia = result.mediaUrls;
             const images = [{ label: "Original Shot", img: dbMedia[0], bg: "from-amber-800/30 to-yellow-600/20", base: true }];
             if (dbMedia[1]) images.push({ label: "Studio White", img: dbMedia[1], bg: "from-slate-200/40 to-amber-100/30", base: false });
             if (dbMedia[2]) images.push({ label: "Lifestyle", img: dbMedia[2], bg: "from-emerald-900/20 to-amber-600/20", base: false });
             if (dbMedia[3]) images.push({ label: "Detail Close-up", img: dbMedia[3], bg: "from-rose-700/20 to-amber-600/20", base: false });
-            
+
             setCatalogImages(images);
             setSelectedImages(new Set(images.map((_, i) => i)));
           }
@@ -189,14 +236,14 @@ function CatalogWizard() {
     setPriceCounter(0);
     setPriceConfirmed(false);
     let cur = 0;
-    const target = 950;
+    const target = pricePrediction.recommended;
     const id = setInterval(() => {
       cur += Math.ceil((target - cur) * 0.07) + 2;
       if (cur >= target) { cur = target; clearInterval(id); }
       setPriceCounter(cur);
     }, 18);
     return () => clearInterval(id);
-  }, [step]);
+  }, [step, pricePrediction.recommended]);
 
   /* publishing progress */
   useEffect(() => {
@@ -233,11 +280,10 @@ function CatalogWizard() {
           <div className="flex items-center gap-1.5">
             {userSteps.map((s, i) => (
               <div key={s.key} className="flex items-center gap-1.5">
-                <div className={`flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-medium uppercase tracking-widest transition-all duration-500 ${
-                  stepIndex(step) >= i
+                <div className={`flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-medium uppercase tracking-widest transition-all duration-500 ${stepIndex(step) >= i
                     ? "text-primary-foreground"
                     : "bg-secondary text-muted-foreground"
-                }`} style={stepIndex(step) >= i ? { background: "var(--gradient-warm)" } : undefined}>
+                  }`} style={stepIndex(step) >= i ? { background: "var(--gradient-warm)" } : undefined}>
                   {stepIndex(step) > i ? <Check className="h-3 w-3" /> : null}
                   <span className="hidden sm:inline">{s.label}</span>
                 </div>
@@ -271,7 +317,7 @@ function CatalogWizard() {
               {/* sender */}
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-10 w-10 place-items-center rounded-full text-xs font-semibold text-primary-foreground" style={{ background: "var(--gradient-warm)" }}>{productInfo.sender.name.split(' ').map((n: string)=>n[0]).join('')}</div>
+                  <div className="grid h-10 w-10 place-items-center rounded-full text-xs font-semibold text-primary-foreground" style={{ background: "var(--gradient-warm)" }}>{productInfo.sender.name.split(' ').map((n: string) => n[0]).join('')}</div>
                   <div>
                     <div className="flex items-center gap-2 text-sm font-medium text-foreground"><User className="h-3.5 w-3.5 text-muted-foreground" />{productInfo.sender.name}</div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{productInfo.sender.location}</div>
@@ -331,14 +377,13 @@ function CatalogWizard() {
           <h2 className="mt-8 font-display text-2xl text-ink">Scanning marketplaces</h2>
           <p className="mt-2 text-sm text-muted-foreground">Checking prices, fees, and fit across platforms…</p>
           <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
-            {MARKETPLACES.map((mp, i) => (
-              <div key={mp.name} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs transition-all duration-500 ${
-                i < cardsRevealed
+            {MARKETPLACES.map((_, i) => (
+              <div key={i} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs transition-all duration-500 ${i < cardsRevealed
                   ? "border-primary/30 bg-primary/5 text-primary"
                   : "border-border bg-card text-muted-foreground"
-              }`}>
+                }`}>
                 {i < cardsRevealed ? <Check className="h-3.5 w-3.5" /> : <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                {mp.name}
+                <span className="h-2.5 w-16 rounded-full bg-current/20" />
               </div>
             ))}
           </div>
@@ -353,40 +398,41 @@ function CatalogWizard() {
               <h2 className="font-display text-2xl text-ink">Marketplace pricing</h2>
               <p className="mt-1 text-xs text-muted-foreground">Hover on any card to see detailed fit analysis</p>
             </div>
-            <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-widest text-emerald-700">4 matches found</span>
+            <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-widest text-emerald-700">{(marketplaceMatches.length || 4)} matches found</span>
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {MARKETPLACES.map((mp, i) => (
-              <div
-                key={mp.name}
-                className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]"
-                style={{ animationDelay: `${i * 100}ms` }}
-              >
-                <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary/5 transition group-hover:bg-primary/10" />
-                <div className="relative p-5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl">{mp.emoji}</span>
-                    <div className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                      <Star className="h-3 w-3" /> {mp.fit}% fit
+            {(marketplaceMatches.length ? marketplaceMatches : MARKETPLACES).map((mp: any, i) => {
+              const fit = typeof mp.score === "number" ? Math.round(mp.score * 100) : mp.fit;
+              return (
+                <div
+                  key={mp.marketplaceName || mp.name}
+                  className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]"
+                  style={{ animationDelay: `${i * 100}ms` }}
+                >
+                  <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary/5 transition group-hover:bg-primary/10" />
+                  <div className="relative p-5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground">{mp.marketplaceName || mp.category}</span>
+                      <div className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                        <Star className="h-3 w-3" /> {fit}% fit
+                      </div>
                     </div>
-                  </div>
-                  <h3 className="mt-3 font-display text-lg text-ink">{mp.name}</h3>
-                  <div className="mt-1 flex items-baseline gap-1">
-                    <span className="font-display text-3xl text-foreground">{mp.currency}{mp.price.toLocaleString("en-IN")}</span>
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">{mp.category}</p>
-                  {/* expanded details on hover */}
-                  <div className="mt-0 max-h-0 overflow-hidden opacity-0 transition-all duration-400 ease-in-out group-hover:mt-4 group-hover:max-h-64 group-hover:opacity-100">
-                    <div className="space-y-2.5 border-t border-border pt-3">
-                      <div className="flex items-center gap-2 text-xs"><BadgePercent className="h-3.5 w-3.5 text-primary" /><span className="text-muted-foreground">Fees:</span><span className="text-foreground">{mp.fees}</span></div>
-                      <div className="flex items-center gap-2 text-xs"><Truck className="h-3.5 w-3.5 text-primary" /><span className="text-muted-foreground">Delivery:</span><span className="text-foreground">{mp.delivery}</span></div>
-                      <div className="flex items-center gap-2 text-xs"><Users className="h-3.5 w-3.5 text-primary" /><span className="text-muted-foreground">Audience:</span><span className="text-foreground">{mp.audience}</span></div>
-                      <p className="text-xs leading-relaxed text-ink-soft">{mp.desc}</p>
+                    <h3 className="mt-3 font-display text-lg text-ink">{mp.productName || mp.name}</h3>
+                    <div className="mt-1 flex items-baseline gap-1">
+                      <span className="font-display text-3xl text-foreground">₹{Number(mp.price || 0).toLocaleString("en-IN")}</span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">{mp.description || mp.desc}</p>
+                    {/* expanded details on hover */}
+                    <div className="mt-0 max-h-0 overflow-hidden opacity-0 transition-all duration-400 ease-in-out group-hover:mt-4 group-hover:max-h-64 group-hover:opacity-100">
+                      <div className="space-y-2.5 border-t border-border pt-3">
+                        {mp.link ? <a href={mp.link} target="_blank" rel="noreferrer" className="text-xs font-medium text-primary underline underline-offset-4">Open source product</a> : null}
+                        <p className="text-xs leading-relaxed text-ink-soft">{mp.description || mp.desc}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <div className="flex justify-center">
             <button onClick={() => goTo("optimum")} className="group inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-[var(--shadow-soft)] transition hover:opacity-90">
@@ -402,7 +448,7 @@ function CatalogWizard() {
           <span className="text-xs uppercase tracking-[0.25em] text-primary">AI-recommended price</span>
           <h2 className="mt-3 font-display text-2xl text-ink">Based on market analysis across 4 platforms</h2>
           <div className="relative mt-10">
-            {priceCounter >= 950 && (
+            {priceCounter >= pricePrediction.recommended && (
               <>
                 <div className="absolute inset-0 rounded-full" style={{ animation: "celebrate-ring 1.5s ease-out forwards", border: "2px solid var(--primary)" }} />
                 <div className="absolute inset-0 rounded-full" style={{ animation: "celebrate-ring 1.5s ease-out 0.2s forwards", border: "2px solid var(--accent)" }} />
@@ -419,11 +465,11 @@ function CatalogWizard() {
             </div>
           </div>
           <div className="mt-8 grid grid-cols-3 gap-6 text-center">
-            <div><div className="text-xs text-muted-foreground">Floor</div><div className="font-display text-lg text-foreground">₹650</div></div>
-            <div><div className="text-xs text-muted-foreground">Recommended</div><div className="font-display text-lg text-primary">₹950</div></div>
-            <div><div className="text-xs text-muted-foreground">Ceiling</div><div className="font-display text-lg text-foreground">₹1,300</div></div>
+            <div><div className="text-xs text-muted-foreground">Floor</div><div className="font-display text-lg text-foreground">₹{pricePrediction.floor.toLocaleString("en-IN")}</div></div>
+            <div><div className="text-xs text-muted-foreground">Recommended</div><div className="font-display text-lg text-primary">₹{pricePrediction.recommended.toLocaleString("en-IN")}</div></div>
+            <div><div className="text-xs text-muted-foreground">Ceiling</div><div className="font-display text-lg text-foreground">₹{pricePrediction.ceiling.toLocaleString("en-IN")}</div></div>
           </div>
-          {priceCounter >= 950 && !priceConfirmed && (
+          {priceCounter >= pricePrediction.recommended && !priceConfirmed && (
             <div className="mt-10 animate-fade-in-up text-center">
               <p className="text-sm text-ink-soft">Is this price okay for your listing?</p>
               <div className="mt-4 flex items-center justify-center gap-3">
@@ -465,8 +511,8 @@ function CatalogWizard() {
             <div className="space-y-4 lg:col-span-5">
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="mb-3 flex items-center gap-2 text-xs font-medium text-ink">
-                  <Camera className="h-4 w-4 text-primary" /> 
-                  AI-Generated Images 
+                  <Camera className="h-4 w-4 text-primary" />
+                  AI-Generated Images
                   {isGenerating ? <span className="text-muted-foreground animate-pulse ml-1">— {GEN_SUBSTEPS[genSubStep]}</span> : <span className="text-muted-foreground ml-1">— select multiple</span>}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -483,11 +529,10 @@ function CatalogWizard() {
                         }
                         return next;
                       })}
-                      className={`group relative aspect-square overflow-hidden rounded-xl border-2 transition-all duration-300 ${
-                        selectedImages.has(i) && !isGenerating
+                      className={`group relative aspect-square overflow-hidden rounded-xl border-2 transition-all duration-300 ${selectedImages.has(i) && !isGenerating
                           ? "border-primary shadow-[var(--shadow-soft)] scale-[1.02]"
                           : "border-border hover:border-primary/40"
-                      } ${isGenerating ? "cursor-wait" : ""}`}
+                        } ${isGenerating ? "cursor-wait" : ""}`}
                     >
                       {/* Generation Animation Layer */}
                       {isGenerating && !img.base && (
@@ -505,7 +550,7 @@ function CatalogWizard() {
                           </div>
                         </div>
                       )}
-                      
+
                       {/* Image Layer */}
                       <div className={`h-full w-full bg-gradient-to-br ${img.bg} ${isGenerating && !img.base ? "blur-xl scale-110 opacity-50" : "animate-blur-reveal"}`}>
                         {img.img && <img src={img.img} alt={img.label} className="h-full w-full object-cover opacity-90 transition group-hover:scale-105" />}
@@ -538,8 +583,8 @@ function CatalogWizard() {
                 <div className="flex bg-secondary/30 p-2 overflow-x-auto gap-2 min-h-40">
                   {isGenerating ? (
                     <div className="flex-1 grid place-items-center text-xs text-muted-foreground gap-3">
-                       <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                       Generation takes 15-30s based on model size...
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      Generation takes 15-30s based on model size...
                     </div>
                   ) : (
                     [...selectedImages].map((idx) => {
@@ -591,7 +636,7 @@ function CatalogWizard() {
                     <div className="rounded-lg border border-border bg-background p-3"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Dimensions</div><div className="mt-0.5 text-sm text-foreground">{productInfo.dimensions}</div></div>
                     <div className="rounded-lg border border-border bg-background p-3">
                       <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Price</div>
-                      <div className="mt-0.5 flex items-center gap-1 font-display text-lg text-primary"><IndianRupee className="h-3.5 w-3.5" />950</div>
+                      <div className="mt-0.5 flex items-center gap-1 font-display text-lg text-primary"><IndianRupee className="h-3.5 w-3.5" />{pricePrediction.recommended.toLocaleString("en-IN")}</div>
                     </div>
                   </div>
                 </div>
@@ -604,15 +649,13 @@ function CatalogWizard() {
                     <button
                       key={mp.name}
                       onClick={() => setSelectedMarketplaces((prev) => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; })}
-                      className={`flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left transition ${
-                        selectedMarketplaces.has(i)
+                      className={`flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left transition ${selectedMarketplaces.has(i)
                           ? "border-primary bg-primary/5"
                           : "border-border bg-background hover:border-primary/30"
-                      }`}
+                        }`}
                     >
-                      <div className={`grid h-5 w-5 place-items-center rounded border transition ${
-                        selectedMarketplaces.has(i) ? "border-primary bg-primary text-primary-foreground" : "border-border"
-                      }`}>
+                      <div className={`grid h-5 w-5 place-items-center rounded border transition ${selectedMarketplaces.has(i) ? "border-primary bg-primary text-primary-foreground" : "border-border"
+                        }`}>
                         {selectedMarketplaces.has(i) && <Check className="h-3 w-3" />}
                       </div>
                       <span className="text-lg">{mp.emoji}</span>

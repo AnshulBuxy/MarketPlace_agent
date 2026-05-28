@@ -59,11 +59,14 @@ async def whatsapp_webhook(
 		(message.body or "")[:120],
 	)
 
-	# For now, send default acknowledgement
-	# Only greet when an image is received. For text follow-ups, stay silent here
-	# so the background workflow can continue the conversation without repetition.
-	response_text = templates.get("acknowledgement") or "Received. Processing your submission..."
-	if not message.media:
+	# Only greet immediately when an image is received.
+	# Audio follow-ups should stay silent here so the background workflow can
+	# transcribe the voice note and continue the same conversation without
+	# repeating the "product received" message.
+	response_text = ""
+	if any(media.is_image() for media in message.media):
+		response_text = templates.get("acknowledgement") or "Received. Processing your submission..."
+	elif not message.media:
 		response_text = ""
 	
 	# Start conversational flow in background
