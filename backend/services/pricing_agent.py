@@ -8,8 +8,9 @@ from typing import Any
 import httpx
 
 from ..config import Settings
-from .marketplace_connectors.base import Listing, SearchQuery
 from .marketplace_connectors.ebay import EbayConnector
+from .marketplace_connectors.google_lens import GoogleLensConnector
+from .marketplace_connectors.google_shopping import GoogleShoppingConnector
 
 
 @dataclass
@@ -88,12 +89,45 @@ class PricingAgent:
 	def __init__(self, settings: Settings) -> None:
 		self._settings = settings
 		self._connector = EbayConnector(settings)
+		self._lens_connector = GoogleLensConnector(settings)
+		self._shopping_connector = GoogleShoppingConnector(settings)
 		self._fx = FxRateService(settings)
 
 	async def run(self, request: PriceRequest, limit: int = 20, top_n: int = 5) -> PriceResponse:
 		keywords = self._build_keywords(request.description, request.attributes)
-		query = SearchQuery(keywords=keywords, limit=limit)
-		listings = await self._connector.search_listings(query)
+		image_bytes = None
+		mime_type = None
+		
+		# If image is provided, download it for visual search
+		if request.image_url:
+			try:
+				from .storage import StorageService
+				import mimetypes
+				storage = StorageService(self._settings)
+				image_bytes = await storage.download_bytes_from_url(request.image_url)
+				mime_type = mimetypes.guess_type(request.image_url)[0]
+				logger.info(f"PricingAgent: Downloaded image for visual search: {request.image_url}")
+			except Exception as e:
+				logger.warning(f"PricingAgent: Failed to download image for visual search: {e}")
+
+		query = SearchQuery(
+			keywords=keywords, 
+			limit=limit, 
+			image_bytes=image_bytes,
+			image_url=request.image_url,
+			mime_type=mime_type
+		)
+		# Search eBay
+		ebay_listings = await self._connector.search_listings(query)
+		
+		# Search Google Lens (Visual Identification)
+		lens_listings = await self._lens_connector.search_listings(query)
+
+		# Search Google Shopping (Regional Price Discovery)
+		shopping_listings = await self._shopping_connector.search_listings(query)
+		
+		listings = ebay_listings + lens_listings + shopping_listings
+		
 		if not listings:
 			return PriceResponse(
 				suggested_price_inr=0.0,

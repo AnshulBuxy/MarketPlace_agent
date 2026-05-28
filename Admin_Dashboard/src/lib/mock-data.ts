@@ -44,8 +44,11 @@ export interface Submission {
   craft: string;
   materials: string[];
   dimensions: string;
+  description: string;
   motifs: string[];
   confidence: number;
+  confidenceScores?: { label: string; value: number }[];
+  expectedPrice?: string;
   suggestedPrice: { floor: number; mid: number; ceiling: number };
   routedTo: Marketplace[];
   drafts: DraftListing[];
@@ -81,10 +84,19 @@ export const SUBMISSIONS: Submission[] = [
     voiceTranscript: "Yeh brass ka boat pen holder hai, handmade hai Moradabad se. Antique finish diya hai. Office desk ke liye perfect hai.",
     voiceLang: "Hindi",
     craft: "Handcrafted Metal Boat Pen Holder",
-    materials: ["Brass", "Antique finish lacquer"],
-    dimensions: "22 × 8 × 12 cm",
-    motifs: ["Sailing boat", "Nautical"],
+    materials: ["Metal", "Brass", "Wrought Iron"],
+    dimensions: "~15–20 cm in length",
+    description: "An intricate handcrafted metal showpiece shaped like a traditional boat (Mayurpankhi) featuring figures of musicians and a mesh-style pen holder. Finished in a golden metallic tone with red and black decorative accents.",
+    motifs: ["Sailing boat", "Nautical", "Musicians"],
     confidence: 0.89,
+    confidenceScores: [
+      { label: "Category", value: 0.95 },
+      { label: "Materials", value: 0.92 },
+      { label: "Description", value: 0.91 },
+      { label: "Craftsmanship", value: 0.89 },
+      { label: "Dimensions", value: 0.88 },
+    ],
+    expectedPrice: "somewhere around 800 rs",
     suggestedPrice: { floor: 650, mid: 950, ceiling: 1300 },
     routedTo: ["Amazon Karigar", "Etsy", "Meesho"],
     drafts: [
@@ -131,6 +143,7 @@ export const SUBMISSIONS: Submission[] = [
     craft: "Madhubani painting",
     materials: ["Handmade paper", "Natural pigments", "Bamboo pen"],
     dimensions: "30 × 30 cm",
+    description: "",
     motifs: ["Fish", "Lotus", "Bharni style"],
     confidence: 0.92,
     suggestedPrice: { floor: 1800, mid: 2450, ceiling: 3200 },
@@ -179,6 +192,7 @@ export const SUBMISSIONS: Submission[] = [
     craft: "Channapatna lacquer toys",
     materials: ["Hale wood", "Lac dye"],
     dimensions: "Set of 5, 8–12 cm",
+    description: "",
     motifs: ["Spinning top", "Stacking rings"],
     confidence: 0.88,
     suggestedPrice: { floor: 850, mid: 1150, ceiling: 1450 },
@@ -203,6 +217,7 @@ export const SUBMISSIONS: Submission[] = [
     craft: "Banarasi silk saree",
     materials: ["Pure silk", "Zari (gold thread)"],
     dimensions: "5.5m saree + 0.8m blouse",
+    description: "",
     motifs: ["Kalga", "Bel"],
     confidence: 0.95,
     suggestedPrice: { floor: 8500, mid: 11200, ceiling: 14800 },
@@ -227,6 +242,7 @@ export const SUBMISSIONS: Submission[] = [
     craft: "Kantha embroidery saree",
     materials: ["Cotton", "Cotton thread"],
     dimensions: "5.5m",
+    description: "",
     motifs: ["Floral border", "Running stitch"],
     confidence: 0.81,
     suggestedPrice: { floor: 3200, mid: 4100, ceiling: 5400 },
@@ -251,6 +267,7 @@ export const SUBMISSIONS: Submission[] = [
     craft: "(detecting…)",
     materials: [],
     dimensions: "—",
+    description: "",
     motifs: [],
     confidence: 0,
     suggestedPrice: { floor: 0, mid: 0, ceiling: 0 },
@@ -269,6 +286,7 @@ export const SUBMISSIONS: Submission[] = [
     craft: "Paithani (machine)",
     materials: ["Polyester"],
     dimensions: "5.5m",
+    description: "",
     motifs: [],
     confidence: 0.74,
     suggestedPrice: { floor: 0, mid: 0, ceiling: 0 },

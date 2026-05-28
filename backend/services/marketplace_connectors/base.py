@@ -25,6 +25,9 @@ class SearchQuery:
 	"""Basic search query for marketplace listing search."""
 
 	keywords: str
+	image_bytes: bytes | None = None
+	image_url: str | None = None
+	mime_type: str | None = None
 	limit: int = 20
 
 

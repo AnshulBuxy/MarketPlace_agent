@@ -157,10 +157,10 @@ class ConversationManager:
 				if preview_url.startswith("s3://"):
 					storage = StorageService(self.settings)
 					preview_url = storage.presign_s3_url(preview_url, expires_in=3600)
-				session_state.pending_action = "low_quality_choice"
+				session_state.pending_action = "await_better_image"
 				return [
 					ConversationReply(body="Enhanced preview attached.", media_url=preview_url),
-					ConversationReply(body=self._msg(session_state, "ask_low_quality_choice")),
+					ConversationReply(body=self._msg(session_state, "ask_better_image")),
 				]
 			session_state.pending_action = "await_better_image"
 			return [ConversationReply(body=self._msg(session_state, "ask_better_image"))]
@@ -171,102 +171,59 @@ class ConversationManager:
 			if preview_url.startswith("s3://"):
 				storage = StorageService(self.settings)
 				preview_url = storage.presign_s3_url(preview_url, expires_in=3600)
-			session_state.pending_action = "blur_choice"
+			session_state.pending_action = "await_better_image"
 			return [
 				ConversationReply(body="Enhanced preview attached.", media_url=preview_url),
-				ConversationReply(body=self._msg(session_state, "ask_blur_choice")),
+				ConversationReply(body=self._msg(session_state, "ask_better_image")),
 			]
 
-		session_state.pending_action = "await_description"
-		return [ConversationReply(body=self._msg(session_state, "ask_description"))]
+		return await self._summarize_product(session_state, session, message.body or "")
 
 	async def _handle_text(self, text: str, session_state: ConversationSession, session: AsyncSession) -> list[ConversationReply]:
 		reply = text.strip().lower()
 
-		if session_state.pending_action == "blur_choice":
-			if self._is_proceed_reply(reply):
-				session_state.pending_action = "await_description"
-				return [ConversationReply(body=self._msg(session_state, "ack_proceed"))]
-			session_state.pending_action = "await_better_image"
-			return [ConversationReply(body=self._msg(session_state, "send_new_image"))]
-
-		if session_state.pending_action == "low_quality_choice":
-			if self._is_proceed_reply(reply):
-				session_state.pending_action = "await_description"
-				return [ConversationReply(body=self._msg(session_state, "ack_proceed"))]
-			session_state.pending_action = "await_better_image"
-			return [ConversationReply(body=self._msg(session_state, "send_new_image"))]
-
 		if session_state.pending_action == "await_better_image":
-			if self._is_proceed_reply(reply) and session_state.product_id:
-				session_state.pending_action = "await_description"
-				return [ConversationReply(body=self._msg(session_state, "ack_proceed"))]
-			return [ConversationReply(body=self._msg(session_state, "send_new_image"))]
+			return [ConversationReply(body=self._msg(session_state, "ask_better_image"))]
 
 		if session_state.pending_action == "confirm_summary":
 			if reply in {"ok", "yes", "looks good", "perfect", "done"}:
 				session_state.pending_action = None
 				return [ConversationReply(body=self._msg(session_state, "listing_confirmed"))]
 			# treat as corrections
-			state = session_state.state_json or {}
-			existing = state.get("description", "")
-			combined = (existing + "\n" + text).strip() if existing else text
-			state["description"] = combined
-			session_state.state_json = state
-			product = await session.get(Product, session_state.product_id) if session_state.product_id else None
-			if not product:
-				session_state.pending_action = "await_better_image"
-				return [ConversationReply(body=self._msg(session_state, "send_new_image"))]
-			attributes, confidence = await self._run_extraction(session, product, combined)
-			attributes = self._apply_attribute_overrides(attributes, state)
-			confidence = self._apply_confidence_overrides(confidence, state)
-			product.attributes = attributes
-			summary = self._format_summary(attributes, session_state)
-			return [
-				ConversationReply(body=self._msg(session_state, "summary_prompt")),
-				ConversationReply(body=summary),
-			]
-
-		if session_state.pending_action in {"await_description", "ask_dimensions", "ask_materials"}:
-			# Append extra details
-			state = session_state.state_json or {}
-			if session_state.pending_action in {"ask_dimensions", "ask_materials"}:
-				state, answered = self._extract_followup_answer(session_state.pending_action, text, state)
-				if not answered:
-					state = self._mark_skipped(session_state.pending_action, text, state)
-			existing = state.get("description", "")
-			combined = (existing + "\n" + text).strip() if existing else text
-			state["description"] = combined
-			session_state.state_json = state
-
-			product = await session.get(Product, session_state.product_id) if session_state.product_id else None
-			if not product:
-				session_state.pending_action = "await_better_image"
-				return [ConversationReply(body=self._msg(session_state, "send_new_image"))]
-
-			attributes, confidence = await self._run_extraction(session, product, combined)
-			attributes = self._apply_attribute_overrides(attributes, state)
-			confidence = self._apply_confidence_overrides(confidence, state)
-			product.attributes = attributes
-			state["last_attributes"] = attributes
-			session_state.state_json = state
-			followup = self._pick_followup_question(confidence, state)
-			if followup:
-				session_state.pending_action = followup
-				return [ConversationReply(body=self._msg(session_state, followup))]
-			session_state.pending_action = "confirm_summary"
-			summary = self._format_summary(attributes, session_state)
-			return [
-				ConversationReply(body=self._msg(session_state, "summary_prompt")),
-				ConversationReply(body=summary),
-			]
+			return await self._summarize_product(session_state, session, text)
 
 		if not session_state.product_id:
 			return [ConversationReply(body=self._msg(session_state, "ask_image"))]
+		return await self._summarize_product(session_state, session, text)
 
-		# Default fallback
-		session_state.pending_action = "await_description"
-		return [ConversationReply(body=self._msg(session_state, "ask_description"))]
+	async def _summarize_product(
+		self,
+		session_state: ConversationSession,
+		session: AsyncSession,
+		description: str,
+	) -> list[ConversationReply]:
+		product = await session.get(Product, session_state.product_id) if session_state.product_id else None
+		if not product:
+			session_state.pending_action = "await_better_image"
+			return [ConversationReply(body=self._msg(session_state, "ask_image"))]
+
+		state = session_state.state_json or {}
+		if description:
+			existing = state.get("description", "")
+			combined = (existing + "\n" + description).strip() if existing else description
+			state["description"] = combined
+		session_state.state_json = state
+
+		attributes, confidence = await self._run_extraction(session, product, state.get("description", ""))
+		attributes = self._apply_attribute_overrides(attributes, state)
+		confidence = self._apply_confidence_overrides(confidence, state)
+		product.attributes = attributes
+		session_state.pending_action = "confirm_summary"
+		summary = self._format_summary(attributes, session_state)
+		return [
+			ConversationReply(body=self._msg(session_state, "summary_prompt")),
+			ConversationReply(body=summary),
+		]
 
 	async def _run_extraction(
 		self,

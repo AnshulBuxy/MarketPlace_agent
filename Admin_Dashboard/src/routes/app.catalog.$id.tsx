@@ -4,52 +4,23 @@ import {
   ArrowLeft, Search, Sparkles, Check, Package, TrendingUp,
   Edit3, Loader2, IndianRupee, User, MapPin,
   Zap, Star, Send, CircleCheck, ShoppingBag, X, ChevronRight,
-  Eye, Layers, Camera, Truck, BadgePercent, Users,
+  Eye, Layers, Camera, Truck, BadgePercent, Users, MessageCircle
 } from "lucide-react";
 
 import heroOriginal from "@/assets/Products/Origin_Image.png";
-import aiImage1 from "@/assets/Products/image.png";
-import aiImage2 from "@/assets/Products/image copy.png";
-import aiImage3 from "@/assets/Products/image copy 2.png";
-import aiImage4 from "@/assets/Products/image copy 3.png";
+
+import { fetchSubmission, generateCatalogImages } from "@/lib/api";
 
 export const Route = createFileRoute("/app/catalog/$id")({
   component: CatalogWizard,
   head: () => ({ meta: [{ title: "Banao · Create catalog" }] }),
 });
 
-/* ─── constants ─── */
-
-const PRODUCT = {
-  name: "Handcrafted Metal Boat Pen Holder",
-  category: "Home Decor",
-  materials: ["Metal", "Brass", "Wrought Iron"],
-  dimensions: "~15–20 cm in length",
-  description:
-    "An intricate handcrafted metal showpiece shaped like a traditional boat (Mayurpankhi) featuring figures of musicians and a mesh-style pen holder. Finished in a golden metallic tone with red and black decorative accents.",
-  sender: { name: "Ravi Sharma", location: "Moradabad, UP", phone: "+91 93••• 44821" },
-  confidence: [
-    { label: "Category", value: 0.95 },
-    { label: "Materials", value: 0.92 },
-    { label: "Description", value: 0.91 },
-    { label: "Craftsmanship", value: 0.89 },
-    { label: "Dimensions", value: 0.88 },
-  ],
-};
-
 const MARKETPLACES = [
   { name: "Amazon Karigar", emoji: "🛒", price: 950, currency: "₹", fit: 92, category: "Home & Kitchen › Showpieces", fees: "15% referral", delivery: "2–4 days", audience: "Premium Indian buyers", desc: "Best for heritage visibility with Karigar program benefits." },
   { name: "Etsy", emoji: "🎨", price: 1150, currency: "₹", fit: 88, category: "Home Decor › Desk Accessories", fees: "6.5% + ₹16", delivery: "7–14 days intl.", audience: "Global craft enthusiasts", desc: "Ideal for international exposure and premium pricing." },
   { name: "Flipkart Samarth", emoji: "📦", price: 1050, currency: "₹", fit: 85, category: "Handicraft › Metal Art", fees: "10% commission", delivery: "3–5 days", audience: "Mass Indian market", desc: "Large user base with Samarth artisan support program." },
   { name: "Meesho", emoji: "🧡", price: 799, currency: "₹", fit: 78, category: "Home Decor › Showpiece", fees: "0% commission", delivery: "5–7 days", audience: "Value-conscious buyers", desc: "Zero commission model with social commerce reach." },
-];
-
-const AI_IMAGES = [
-  { label: "Original Shot", img: heroOriginal, bg: "from-amber-800/30 to-yellow-600/20" },
-  { label: "Studio White", img: aiImage1, bg: "from-slate-200/40 to-amber-100/30" },
-  { label: "Detail Close-up", img: aiImage2, bg: "from-rose-700/20 to-amber-600/20" },
-  { label: "Aerial View", img: aiImage3, bg: "from-stone-300/30 to-amber-200/20" },
-  { label: "Lifestyle", img: aiImage4, bg: "from-emerald-900/20 to-amber-600/20" },
 ];
 
 const STEP_KEYS = ["detail", "searching", "pricing", "optimum", "catalog", "publishing", "live"] as const;
@@ -86,6 +57,32 @@ function ConfidenceBar({ label, value }: { label: string; value: number }) {
 /* ─── main component ─── */
 
 function CatalogWizard() {
+  const { id } = Route.useParams() as { id: string };
+  const [submission, setSubmission] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSubmission(id).then(sub => {
+      setSubmission(sub);
+      setLoading(false);
+      if (sub && sub.description) {
+        setCatalogDesc(sub.description);
+      }
+    }).catch(console.error);
+  }, [id]);
+
+  const productInfo = submission ? {
+    name: submission.craft,
+    category: "Home Decor",
+    materials: submission.materials || [],
+    dimensions: submission.dimensions || "",
+    description: submission.description || "",
+    sender: { name: submission.artisanInfo?.name || "Artisan", location: submission.artisanInfo?.cluster || "Location", phone: submission.artisanInfo?.phone || "" },
+    confidence: submission.confidenceScores || [],
+    expectedPrice: submission.expectedPrice,
+    thumbnail: submission.thumbnail || heroOriginal,
+  } : null;
+
   const [step, setStep] = useState<Step>("detail");
   const [cardsRevealed, setCardsRevealed] = useState(0);
   const [priceCounter, setPriceCounter] = useState(0);
@@ -95,11 +92,42 @@ function CatalogWizard() {
   const [publishProgress, setPublishProgress] = useState(0);
   const [publishingMp, setPublishingMp] = useState("");
   const [catalogTitle, setCatalogTitle] = useState("Handcrafted Brass Boat Pen Holder — Mayurpankhi Design");
-  const [catalogDesc, setCatalogDesc] = useState(PRODUCT.description);
+  const [catalogDesc, setCatalogDesc] = useState("");
   const [editingField, setEditingField] = useState<string | null>(null);
   const [animKey, setAnimKey] = useState(0); // force re-mount for animations
   const [isGenerating, setIsGenerating] = useState(false);
   const [genSubStep, setGenSubStep] = useState(0);
+  const [catalogImages, setCatalogImages] = useState<any[]>([]);
+
+  // Format AI IMAGES state dynamically once submission is fetched
+  useEffect(() => {
+    if (productInfo) {
+      const dbMedia = submission.mediaUrls || (productInfo.thumbnail ? [productInfo.thumbnail] : []);
+      const images = [
+        { label: "Original Shot", img: dbMedia[0], bg: "from-amber-800/30 to-yellow-600/20", base: true }
+      ];
+      if (dbMedia.length > 1) {
+        images.push({ label: "Studio White", img: dbMedia[1], bg: "from-slate-200/40 to-amber-100/30", base: false });
+      }
+      if (dbMedia.length > 2) {
+        images.push({ label: "Lifestyle", img: dbMedia[2], bg: "from-emerald-900/20 to-amber-600/20", base: false });
+      }
+      if (dbMedia.length > 3) {
+        images.push({ label: "Detail Close-up", img: dbMedia[3], bg: "from-rose-700/20 to-amber-600/20", base: false });
+      }
+      setCatalogImages(images);
+      
+      // Auto-select all available images by default
+      setSelectedImages(new Set(images.map((_, i) => i)));
+    }
+  }, [submission]);
+
+  // search handlers
+  const handleMarketplaceToggle = (idx: number) => {
+    const next = new Set(selectedMarketplaces);
+    if (next.has(idx)) next.delete(idx); else next.add(idx);
+    setSelectedMarketplaces(next);
+  };
 
   const GEN_SUBSTEPS = [
     "Analyzing lighting...",
@@ -111,14 +139,36 @@ function CatalogWizard() {
 
   /* AI generation sequence trigger */
   useEffect(() => {
-    if (step === "catalog") {
+    if (step === "catalog" && catalogImages.length === 1) {
+      // Only 1 image (the original) exists, so we trigger generation
       setIsGenerating(true);
-      setGenSubStep(0);
-      const timers = GEN_SUBSTEPS.map((_, i) => 
-        setTimeout(() => setGenSubStep(i), i * 800)
-      );
-      timers.push(setTimeout(() => setIsGenerating(false), GEN_SUBSTEPS.length * 800 + 400));
-      return () => timers.forEach(clearTimeout);
+      setGenSubStep(1); // Extracting textures
+
+      const generate = async () => {
+        try {
+          const result = await generateCatalogImages(id, ["studio_white"]);
+          
+          if (result && result.mediaUrls) {
+            setGenSubStep(4); // Finalizing shots
+            
+            const dbMedia = result.mediaUrls;
+            const images = [{ label: "Original Shot", img: dbMedia[0], bg: "from-amber-800/30 to-yellow-600/20", base: true }];
+            if (dbMedia[1]) images.push({ label: "Studio White", img: dbMedia[1], bg: "from-slate-200/40 to-amber-100/30", base: false });
+            if (dbMedia[2]) images.push({ label: "Lifestyle", img: dbMedia[2], bg: "from-emerald-900/20 to-amber-600/20", base: false });
+            if (dbMedia[3]) images.push({ label: "Detail Close-up", img: dbMedia[3], bg: "from-rose-700/20 to-amber-600/20", base: false });
+            
+            setCatalogImages(images);
+            setSelectedImages(new Set(images.map((_, i) => i)));
+          }
+        } catch (err) {
+          console.error("AI Generation Error: ", err);
+          setGenSubStep(0);
+        } finally {
+          setIsGenerating(false);
+        }
+      };
+
+      generate();
     }
   }, [step]);
 
@@ -168,6 +218,10 @@ function CatalogWizard() {
 
   const goTo = (s: Step) => { setAnimKey((k) => k + 1); setStep(s); };
 
+  if (loading || !productInfo) {
+    return <div className="flex h-screen items-center justify-center text-foreground/60">Loading dynamic submission details...</div>;
+  }
+
   return (
     <div className="min-h-[60vh]" key={animKey}>
       {/* ─── top bar ─── */}
@@ -203,24 +257,24 @@ function CatalogWizard() {
             {/* image */}
             <div className="lg:col-span-2">
               <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-[var(--shadow-soft)] flex items-center justify-center p-4">
-                <img src={heroOriginal} alt="Product" className="max-h-[500px] w-auto rotate-90 object-contain shadow-md rounded-lg" />
+                <img src={productInfo.thumbnail?.startsWith("s3") ? productInfo.thumbnail /* placeholder fix */ : productInfo.thumbnail} alt="Product" className="max-h-[500px] w-auto object-contain shadow-md rounded-lg" />
               </div>
               <p className="mt-4 text-center text-[10px] uppercase tracking-widest text-muted-foreground">Original photo · WhatsApp</p>
             </div>
             {/* details */}
             <div className="space-y-5 lg:col-span-3">
               <div>
-                <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-widest text-primary">{PRODUCT.category}</span>
-                <h2 className="mt-3 font-display text-3xl tracking-tight text-ink">{PRODUCT.name}</h2>
-                <p className="mt-3 text-sm leading-relaxed text-ink-soft">{PRODUCT.description}</p>
+                <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-widest text-primary">{productInfo.category}</span>
+                <h2 className="mt-3 font-display text-3xl tracking-tight text-ink">{productInfo.name}</h2>
+                <p className="mt-3 text-sm leading-relaxed text-ink-soft">{productInfo.description}</p>
               </div>
               {/* sender */}
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-10 w-10 place-items-center rounded-full text-xs font-semibold text-primary-foreground" style={{ background: "var(--gradient-warm)" }}>RS</div>
+                  <div className="grid h-10 w-10 place-items-center rounded-full text-xs font-semibold text-primary-foreground" style={{ background: "var(--gradient-warm)" }}>{productInfo.sender.name.split(' ').map((n: string)=>n[0]).join('')}</div>
                   <div>
-                    <div className="flex items-center gap-2 text-sm font-medium text-foreground"><User className="h-3.5 w-3.5 text-muted-foreground" />{PRODUCT.sender.name}</div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{PRODUCT.sender.location}</div>
+                    <div className="flex items-center gap-2 text-sm font-medium text-foreground"><User className="h-3.5 w-3.5 text-muted-foreground" />{productInfo.sender.name}</div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{productInfo.sender.location}</div>
                   </div>
                 </div>
               </div>
@@ -228,20 +282,30 @@ function CatalogWizard() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-lg border border-border bg-card p-3">
                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Materials</div>
-                  <div className="mt-1 text-sm text-foreground">{PRODUCT.materials.join(", ")}</div>
+                  <div className="mt-1 text-sm text-foreground">{productInfo.materials.join(", ")}</div>
                 </div>
                 <div className="rounded-lg border border-border bg-card p-3">
                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Dimensions</div>
-                  <div className="mt-1 text-sm text-foreground">{PRODUCT.dimensions}</div>
+                  <div className="mt-1 text-sm text-foreground">{productInfo.dimensions}</div>
                 </div>
               </div>
               {/* confidence */}
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="mb-3 flex items-center gap-2 text-xs font-medium text-ink"><Sparkles className="h-4 w-4 text-primary" /> AI Confidence Scores</div>
                 <div className="space-y-2.5">
-                  {PRODUCT.confidence.map((c) => <ConfidenceBar key={c.label} label={c.label} value={c.value} />)}
+                  {productInfo.confidence.map((c: any) => <ConfidenceBar key={c.label} label={c.label} value={c.value} />)}
                 </div>
               </div>
+              {/* Expected Price via Whatsapp */}
+              {productInfo.expectedPrice && (
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-widest text-primary">Artisan Expectation</div>
+                    <div className="mt-1 text-sm text-foreground font-medium">"{productInfo.expectedPrice}"</div>
+                  </div>
+                  <MessageCircle className="h-5 w-5 text-primary opacity-50" />
+                </div>
+              )}
               <button
                 onClick={() => goTo("searching")}
                 className="group inline-flex w-full items-center justify-center gap-2.5 rounded-xl bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground shadow-[var(--shadow-soft)] transition hover:opacity-90"
@@ -406,7 +470,7 @@ function CatalogWizard() {
                   {isGenerating ? <span className="text-muted-foreground animate-pulse ml-1">— {GEN_SUBSTEPS[genSubStep]}</span> : <span className="text-muted-foreground ml-1">— select multiple</span>}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  {AI_IMAGES.map((img, i) => (
+                  {catalogImages.map((img, i) => (
                     <button
                       key={i}
                       disabled={isGenerating}
@@ -426,7 +490,7 @@ function CatalogWizard() {
                       } ${isGenerating ? "cursor-wait" : ""}`}
                     >
                       {/* Generation Animation Layer */}
-                      {isGenerating && (
+                      {isGenerating && !img.base && (
                         <div className="absolute inset-0 z-10 overflow-hidden bg-background">
                           <div className={`absolute inset-0 bg-gradient-to-br ${img.bg} opacity-20`} />
                           {/* Noise/Blur placeholder */}
@@ -437,23 +501,35 @@ function CatalogWizard() {
                           <div className="absolute left-0 right-0 h-1 bg-primary/40 blur-sm animate-scan-line shadow-[0_0_15px_var(--primary)]" style={{ animationDelay: `${i * 0.2}s` }} />
                           {/* Status text */}
                           <div className="absolute bottom-2 left-0 right-0 text-center text-[8px] font-medium uppercase tracking-tighter text-muted-foreground animate-pulse">
-                            Processing...
+                            Generating AI Layer...
                           </div>
                         </div>
                       )}
                       
                       {/* Image Layer */}
-                      <div className={`h-full w-full bg-gradient-to-br ${img.bg} ${isGenerating ? "blur-xl scale-110 opacity-50" : "animate-blur-reveal"}`}>
-                        <img src={img.img} alt={img.label} className="h-full w-full object-cover mix-blend-multiply opacity-90 transition group-hover:scale-105" />
+                      <div className={`h-full w-full bg-gradient-to-br ${img.bg} ${isGenerating && !img.base ? "blur-xl scale-110 opacity-50" : "animate-blur-reveal"}`}>
+                        {img.img && <img src={img.img} alt={img.label} className="h-full w-full object-cover opacity-90 transition group-hover:scale-105" />}
                       </div>
 
                       <div className="absolute bottom-0 left-0 right-0 bg-ink/60 px-2 py-1 text-[10px] font-medium text-white backdrop-blur-sm">{img.label}</div>
-                      {selectedImages.has(i) && !isGenerating && (
+                      {selectedImages.has(i) && (!isGenerating || img.base) && (
                         <div className="absolute right-1.5 top-1.5 z-20 grid h-5 w-5 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm animate-bounce-check">
                           <Check className="h-3 w-3" />
                         </div>
                       )}
                     </button>
+                  ))}
+                  {/* Generating Skeleton placeholders if generating and only 1 image exists */}
+                  {isGenerating && catalogImages.length === 1 && [1].map((_, idx) => (
+                    <div key={`skeleton-${idx}`} className="relative aspect-square rounded-xl border-2 border-border overflow-hidden cursor-wait">
+                      <div className="absolute inset-0 z-10 overflow-hidden bg-background">
+                        <div className={`absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-20`} />
+                        <div className="absolute inset-0 grid place-items-center opacity-30">
+                          <Sparkles className="h-8 w-8 text-muted-foreground animate-pulse" />
+                        </div>
+                        <div className="absolute left-0 right-0 h-1 bg-primary/40 blur-sm animate-scan-line shadow-[0_0_15px_var(--primary)]" style={{ animationDelay: `${idx * 0.2}s` }} />
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -462,15 +538,19 @@ function CatalogWizard() {
                 <div className="flex bg-secondary/30 p-2 overflow-x-auto gap-2 min-h-40">
                   {isGenerating ? (
                     <div className="flex-1 grid place-items-center text-xs text-muted-foreground gap-3">
-                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                      Preparing your selection...
+                       <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                       Generation takes 15-30s based on model size...
                     </div>
                   ) : (
-                    [...selectedImages].map((idx) => (
-                      <div key={idx} className={`relative flex-none h-40 aspect-video rounded-lg overflow-hidden bg-gradient-to-br ${AI_IMAGES[idx].bg} animate-blur-reveal`}>
-                        <img src={AI_IMAGES[idx].img} alt="Preview" className="h-full w-full object-cover mix-blend-multiply opacity-90" />
-                      </div>
-                    ))
+                    [...selectedImages].map((idx) => {
+                      const imgObj = catalogImages[idx];
+                      if (!imgObj) return null;
+                      return (
+                        <div key={idx} className={`relative flex-none h-40 aspect-video rounded-lg overflow-hidden bg-gradient-to-br ${imgObj.bg} animate-blur-reveal`}>
+                          <img src={imgObj.img} alt="Preview" className="h-full w-full object-cover opacity-90" />
+                        </div>
+                      )
+                    })
                   )}
                 </div>
                 {!isGenerating && <div className="p-3 text-center text-xs text-muted-foreground">{selectedImages.size} images selected</div>}
@@ -506,9 +586,9 @@ function CatalogWizard() {
                   </div>
                   {/* attributes grid */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-lg border border-border bg-background p-3"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Category</div><div className="mt-0.5 text-sm text-foreground">{PRODUCT.category}</div></div>
-                    <div className="rounded-lg border border-border bg-background p-3"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Materials</div><div className="mt-0.5 text-sm text-foreground">{PRODUCT.materials.join(", ")}</div></div>
-                    <div className="rounded-lg border border-border bg-background p-3"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Dimensions</div><div className="mt-0.5 text-sm text-foreground">{PRODUCT.dimensions}</div></div>
+                    <div className="rounded-lg border border-border bg-background p-3"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Category</div><div className="mt-0.5 text-sm text-foreground">{productInfo.category}</div></div>
+                    <div className="rounded-lg border border-border bg-background p-3"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Materials</div><div className="mt-0.5 text-sm text-foreground">{productInfo.materials.join(", ")}</div></div>
+                    <div className="rounded-lg border border-border bg-background p-3"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Dimensions</div><div className="mt-0.5 text-sm text-foreground">{productInfo.dimensions}</div></div>
                     <div className="rounded-lg border border-border bg-background p-3">
                       <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Price</div>
                       <div className="mt-0.5 flex items-center gap-1 font-display text-lg text-primary"><IndianRupee className="h-3.5 w-3.5" />950</div>
@@ -617,7 +697,7 @@ function CatalogWizard() {
           </div>
           <h2 className="mt-8 font-display text-4xl text-ink">Your item is LIVE! 🎉</h2>
           <p className="mt-3 max-w-md text-center text-sm text-ink-soft">
-            Your <strong>{PRODUCT.name}</strong> has been published successfully across {selectedMarketplaces.size} marketplace{selectedMarketplaces.size !== 1 ? "s" : ""}.
+            Your <strong>{productInfo.name}</strong> has been published successfully across {selectedMarketplaces.size} marketplace{selectedMarketplaces.size !== 1 ? "s" : ""}.
           </p>
           <div className="mt-8 space-y-2">
             {[...selectedMarketplaces].map((i) => (

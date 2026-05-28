@@ -6,7 +6,7 @@ from fastapi import APIRouter, Request, Response, BackgroundTasks
 from ..config import get_settings, load_message_templates
 from ..db import AsyncSessionLocal
 from ..services.whatsapp import build_twiml_message, parse_twilio_payload
-from ..services.conversation import ConversationManager
+from ..services.multiagent import MultiAgentManager
 
 router = APIRouter(prefix="/webhook", tags=["webhook"])
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ async def _handle_conversation_async(payload: dict, settings):
 	"""Handle conversational agent flow in background."""
 	async with AsyncSessionLocal() as session:
 		try:
-			manager = ConversationManager(settings)
+			manager = MultiAgentManager(settings)
 			replies = await manager.handle_payload(payload, session)
 			await session.commit()
 			message = parse_twilio_payload(payload)

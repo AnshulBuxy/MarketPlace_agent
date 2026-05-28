@@ -106,3 +106,23 @@ class GeminiService:
 			"dimensions": _safe_float(conf.get("dimensions", 0.6), 0.6),
 			"description": _safe_float(conf.get("description", 0.7), 0.7),
 		}
+
+
+class GeminiChatService:
+	"""Gemini text-only chat service for agent decisions."""
+
+	def __init__(self, settings: Settings) -> None:
+		self._settings = settings
+		self._model_name = settings.google_gemini_flash_model or "gemini-1.5-flash"
+		if not settings.google_api_key:
+			raise ValueError("GOOGLE_API_KEY is not configured")
+		genai.configure(api_key=settings.google_api_key)
+
+	async def generate_json(self, prompt: str) -> dict[str, Any]:
+		def _call() -> str:
+			model = genai.GenerativeModel(self._model_name)
+			response = model.generate_content(prompt)
+			return response.text or ""
+
+		text = await asyncio.to_thread(_call)
+		return GeminiService._parse_json(text)

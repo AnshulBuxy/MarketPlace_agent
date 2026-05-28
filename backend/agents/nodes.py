@@ -350,12 +350,21 @@ class ExtractionNode(AgentNodeContract):
 					product_id=product.id,
 				)
 			
+			human_gate_question = (
+				f"Name: {attributes.get('name', '')}\n"
+				f"Category: {attributes.get('category', '')}\n"
+				f"Materials: {', '.join(attributes.get('materials', [])) if isinstance(attributes.get('materials'), list) else attributes.get('materials', '')}\n"
+				f"Dimensions: {attributes.get('dimensions', {}).get('raw', '') if isinstance(attributes.get('dimensions'), dict) else attributes.get('dimensions', '')}\n"
+				f"Description: {attributes.get('description', '')}\n"
+				"Please let me know if these details are correct or if you would like to make any changes."
+			)
+
 			return AgentNodeOutput(
 				success=True,
 				next_node=NodeType.MARKETPLACE_ROUTING,
 				node_outputs=attributes,
 				confidence_scores=confidence_scores,
-				human_gate_question="Please confirm/correct these attributes for better marketplace matching. Materials and dimensions are especially important." if min(confidence_scores.values()) < 0.7 else None,
+				human_gate_question=human_gate_question,
 			)
 		
 		except Exception as e:
@@ -446,42 +455,61 @@ class MarketplaceRoutingNode(AgentNodeContract):
 		super().__init__(NodeType.MARKETPLACE_ROUTING)
 	
 	async def execute(self, node_input: AgentNodeInput) -> AgentNodeOutput:
-		"""Route to marketplace."""
+		"""Route to marketplace and ask for price."""
 		try:
-			# Phase 1: Stub - route to default marketplace
+			state = node_input.workflow_state
+			
+			# If we haven't asked for the price yet in this node iteration
+			if not state.human_gate_response or "price" not in state.human_gate_response.lower():
+				# We assume the user just said 'yeah everything is correct' to the Extraction node.
+				# Now we pause again for the expected price.
+				return AgentNodeOutput(
+					success=True,
+					next_node=NodeType.MARKETPLACE_ROUTING,
+					node_outputs={},
+					human_gate_question="What is your Product's expected Price"
+				)
+			
+			expected_price_str = state.human_gate_response
+			import re
+			match = re.search(r'\d+', expected_price_str)
+			expected_price = int(match.group()) if match else None
+			logger.info(f"User expects price: {expected_price}")
+			
+			# We have the price! Send confirmation message.
+			if state.contact_number:
+				try:
+					from ..orchestrator import ToolRegistry
+					tool_registry = ToolRegistry(node_input.session, node_input.settings)
+					await tool_registry.call(
+						"whatsapp_send",
+						to_number=state.contact_number,
+						body="Ok your Price Expection and product is saved, soon we will get back to you",
+					)
+				except Exception as exc:
+					logger.error(f"Failed to send confirmation message: {exc}")
+			
 			product_id = node_input.workflow_state.product_id
 			if not product_id:
 				product_id = node_input.workflow_state.node_outputs.get("ingestion", {}).get("product_id")
+			
 			product_uuid = None
 			if product_id:
 				from ..models.product import Product
 				product = await node_input.session.get(Product, product_id)
 				if product:
 					product_uuid = product.id
-			logger.info(
-				"MarketplaceRoutingNode: product_id=%s routing=shopify",
-				product_id,
-			)
-			await log_event(
-				session=node_input.session,
-				agent="marketplace_routing",
-				action="route_marketplace",
-				input_data={
-					"product_id": product_id,
-					"attributes": node_input.workflow_state.node_outputs.get("extraction", {}),
-				},
-				output_data={
-					"marketplace": "shopify",
-					"reason": "Default marketplace for Phase 1",
-				},
-				product_id=product_uuid,
-			)
+					product.attributes = product.attributes or {}
+					product.attributes["expected_price"] = expected_price
+					await node_input.session.flush()
+
 			return AgentNodeOutput(
 				success=True,
 				next_node=NodeType.PRICING,
 				node_outputs={
 					"marketplace": "shopify",
 					"reason": "Default marketplace for Phase 1",
+					"expected_price": expected_price,
 				},
 				confidence_scores={
 					"marketplace_selection": 0.8,

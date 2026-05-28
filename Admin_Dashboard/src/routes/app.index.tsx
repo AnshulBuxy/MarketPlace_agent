@@ -1,6 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { SUBMISSIONS, ARTISANS, STATUS_LABEL, getArtisan } from "@/lib/mock-data";
-import { ArrowUpRight, ClipboardCheck, Inbox, MessageCircle, Package, TrendingUp } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { 
+  Search, Filter, CheckCircle2, Circle, 
+  MessageCircle, ArrowUpRight, Inbox, ClipboardCheck, Package, TrendingUp 
+} from "lucide-react";
+import { fetchSubmissions } from "@/lib/api";
+import { ARTISANS, STATUS_LABEL } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/app/")({
   component: InboxPage,
@@ -24,9 +29,38 @@ function timeAgo(iso: string) {
 }
 
 function InboxPage() {
-  const inReview = SUBMISSIONS.filter((s) => s.status === "review").length;
-  const inFlight = SUBMISSIONS.filter((s) => !["published", "rejected"].includes(s.status)).length;
-  const publishedToday = SUBMISSIONS.filter((s) => s.status === "published").length;
+  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedSubIds, setSelectedSubIds] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  useEffect(() => {
+    fetchSubmissions().then((data) => {
+      setSubmissions(data);
+      setLoading(false);
+    }).catch(console.error);
+  }, []);
+
+  const filtered = useMemo(() => {
+    return submissions.filter((s) => {
+      if (statusFilter !== "all" && s.status !== statusFilter) return false;
+      if (search) {
+        const query = search.toLowerCase();
+        if (!s.craft.toLowerCase().includes(query)) return false;
+      }
+      return true;
+    });
+  }, [search, statusFilter, submissions]);
+
+  const inReview = submissions.filter((s) => s.status === "review").length;
+  const inFlight = submissions.filter((s) => !["published", "rejected"].includes(s.status)).length;
+  const publishedToday = submissions.filter((s) => s.status === "published").length;
+
+  const toggleAll = () => {
+    if (selectedSubIds.size === filtered.length) setSelectedSubIds(new Set());
+    else setSelectedSubIds(new Set(filtered.map((s) => s.id)));
+  };
 
   return (
     <div className="space-y-6">
@@ -44,28 +78,36 @@ function InboxPage() {
               <h2 className="font-display text-lg text-ink">Live submissions</h2>
               <p className="text-xs text-muted-foreground">Photos & voice notes flowing in from WhatsApp</p>
             </div>
-            <Link to="/app/review" className="text-xs font-medium text-primary hover:underline">Open review queue →</Link>
+            <div className="flex items-center gap-2">
+              <input type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="h-8 rounded-md border border-border bg-background px-3 text-xs" />
+              <Link to="/app/review" className="text-xs font-medium text-primary hover:underline">Open review queue →</Link>
+            </div>
           </div>
-          <ul className="divide-y divide-border">
-            {SUBMISSIONS.map((s) => {
-              const a = getArtisan(s.artisanId)!;
-              return (
+          {loading ? <div className="p-8 text-center text-sm text-muted-foreground">Loading...</div> : (
+            <ul className="divide-y divide-border">
+              {filtered.map((s) => (
                 <li key={s.id}>
                   <Link 
-                    to={s.id === "s-1043" ? "/app/catalog/$id" : "/app/review/$id"} 
+                    to="/app/catalog/$id" 
                     params={{ id: s.id }} 
                     className="flex items-center gap-4 px-5 py-3 transition hover:bg-secondary/40"
                   >
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-secondary text-xl">{s.thumbnail}</div>
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-secondary text-xl overflow-hidden">
+                      {s.thumbnail?.startsWith("http") || s.thumbnail?.startsWith("s3") ? (
+                         <img src={s.thumbnail} className="h-full w-full object-cover" />
+                      ) : (
+                         s.thumbnail
+                      )}
+                    </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="truncate font-medium text-foreground">{s.craft}</span>
                         <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${STATUS_TONE[s.status]}`}>
-                          {STATUS_LABEL[s.status]}
+                          {STATUS_LABEL[s.status as keyof typeof STATUS_LABEL] || s.status}
                         </span>
                       </div>
                       <div className="mt-0.5 truncate text-xs text-muted-foreground">
-                        {a.name} · {a.cluster} · <MessageCircle className="inline h-3 w-3" /> {s.voiceLang}
+                        {s.artisanName} · {s.cluster} · <MessageCircle className="inline h-3 w-3" /> {s.voiceLang}
                       </div>
                     </div>
                     <div className="hidden text-right text-xs text-muted-foreground sm:block">
@@ -75,9 +117,9 @@ function InboxPage() {
                     <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
                   </Link>
                 </li>
-              );
-            })}
-          </ul>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="space-y-6">
@@ -88,28 +130,6 @@ function InboxPage() {
               <span className="font-display text-4xl text-primary">3.8</span>
               <span className="text-xs font-medium text-emerald-600">▲ 0.4 vs last wk</span>
             </div>
-            <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-secondary">
-              <div className="h-full" style={{ width: "76%", background: "var(--gradient-warm)" }} />
-            </div>
-            <div className="mt-2 flex justify-between text-[10px] uppercase tracking-widest text-muted-foreground">
-              <span>0</span><span>Target 5.0</span>
-            </div>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h2 className="font-display text-lg text-ink">Today's WhatsApp activity</h2>
-            <ul className="mt-4 space-y-3 text-sm">
-              {[
-                ["Inbound media", "47"],
-                ["Voice transcribed", "44"],
-                ["Confirmations sent", "12"],
-                ["Avg artisan effort", "4m 18s"],
-              ].map(([k, v]) => (
-                <li key={k} className="flex items-center justify-between border-b border-border pb-2 last:border-0">
-                  <span className="text-muted-foreground">{k}</span>
-                  <span className="font-medium text-foreground">{v}</span>
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
       </div>

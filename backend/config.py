@@ -64,6 +64,9 @@ class Settings(BaseSettings):
 	ebay_client_secret: str | None = None
 	ebay_marketplace_id: str = "EBAY_US"
 	ebay_oauth_scope: str = "https://api.ebay.com/oauth/api_scope"
+	serpapi_api_key: str | None = None
+	google_lens_gl: str = "in"
+	google_lens_hl: str = "en"
 	fx_rate_base_url: str = "https://api.exchangerate.host/latest"
 	fx_rate_inr_per_usd: float | None = None
 
