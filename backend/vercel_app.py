@@ -21,15 +21,15 @@ if not os.path.exists(symlink_path):
 if tmp_dir not in sys.path:
     sys.path.insert(0, tmp_dir)
 
-def html_escape(text: str) -> str:
-    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#x27;")
+# Initialize app variable at the top-level outer scope for Vercel's static analysis
+app = None
 
 try:
     # Import the main FastAPI app from the backend package context
-    from backend.main import app
+    from backend.main import app as _app
+    app = _app
 except Exception as e:
-    # If importing fails (e.g., due to missing Vercel environment variables),
-    # construct a fallback FastAPI app to display the error beautifully in the browser.
+    # If importing fails, construct a fallback FastAPI app to display the error beautifully in the browser.
     from fastapi import FastAPI
     from fastapi.responses import HTMLResponse
     
@@ -37,10 +37,13 @@ except Exception as e:
     print("CRITICAL: Failed to import backend.main", file=sys.stderr)
     traceback.print_exc()
     
-    app = FastAPI(title="Backend Load Error")
+    fallback_app = FastAPI(title="Backend Load Error")
     error_traceback = traceback.format_exc()
     
-    @app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"])
+    def html_escape(text: str) -> str:
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#x27;")
+    
+    @fallback_app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"])
     async def fallback_route(path: str):
         html_content = f"""
         <!DOCTYPE html>
@@ -113,3 +116,5 @@ except Exception as e:
         </html>
         """
         return HTMLResponse(content=html_content, status_code=500)
+
+    app = fallback_app
