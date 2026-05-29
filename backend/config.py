@@ -87,5 +87,7 @@ def load_message_templates() -> dict:
 	if not path.is_absolute():
 		path = _REPO_ROOT / path
 	if not path.exists():
+		path = Path(__file__).resolve().parent / "prompts" / "messages.json"
+	if not path.exists():
 		return {}
 	return json.loads(path.read_text(encoding="utf-8"))
