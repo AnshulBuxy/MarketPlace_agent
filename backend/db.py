@@ -4,6 +4,7 @@ import ssl
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
 
 from .config import get_settings
 
@@ -13,15 +14,19 @@ def build_connect_args(database_url: str | None) -> dict[str, object]:
     if not database_url:
         return {}
 
+    connect_args: dict[str, object] = {"statement_cache_size": 0}
+
     if "sslmode=disable" in database_url:
-        return {"ssl": False}
+        connect_args["ssl"] = False
+        return connect_args
 
     if "sslmode=require" in database_url or "supabase.co" in database_url:
         context = ssl._create_unverified_context()
         context.check_hostname = False
-        return {"ssl": context}
+        connect_args["ssl"] = context
+        return connect_args
 
-    return {}
+    return connect_args
 
 
 _engine: AsyncEngine | None = None
@@ -41,6 +46,7 @@ def get_engine() -> AsyncEngine:
         _engine = create_async_engine(
             db_url,
             pool_pre_ping=True,
+            poolclass=NullPool,
             future=True,
             connect_args=build_connect_args(db_url),
         )
