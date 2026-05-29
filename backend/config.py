@@ -4,6 +4,7 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -17,12 +18,22 @@ class Settings(BaseSettings):
 		env_file_encoding="utf-8",
 	)
 
+	@model_validator(mode="before")
+	@classmethod
+	def strip_quotes_from_env(cls, data: dict) -> dict:
+		if isinstance(data, dict):
+			return {
+				k: (v.strip("'\"") if isinstance(v, str) else v)
+				for k, v in data.items()
+			}
+		return data
+
 	env: str = "local"
 	app_name: str = "riyaaz"
-	database_url: str
-	redis_url: str
-	celery_broker_url: str
-	celery_result_backend: str
+	database_url: str | None = None
+	redis_url: str | None = None
+	celery_broker_url: str | None = None
+	celery_result_backend: str | None = None
 	use_celery_for_ingestion: bool = False
 	http_timeout_seconds: int = 30
 	http_max_retries: int = 3
@@ -31,7 +42,7 @@ class Settings(BaseSettings):
 
 	aws_access_key_id: str | None = None
 	aws_secret_access_key: str | None = None
-	aws_s3_bucket: str
+	aws_s3_bucket: str | None = None
 	aws_region: str = "ap-south-1"
 	s3_endpoint_url: str | None = None
 	aws_role_arn: str | None = None
