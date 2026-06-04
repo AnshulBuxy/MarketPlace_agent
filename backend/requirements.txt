@@ -1,18 +1,42 @@
+# Web framework
 fastapi
 uvicorn[standard]
+python-multipart
+
+# Database
 sqlalchemy>=2.0
 asyncpg
 alembic
+
+# Settings & validation
+pydantic>=2.0
 pydantic-settings
+python-dotenv
+
+# HTTP client
 httpx
+
+# AWS / Storage
 boto3
+botocore
+
+# Task queue
 celery
 redis
+
+# Retry logic
 tenacity
-python-multipart
+
+# Image processing
 pillow
+
+# LangGraph / LangChain
 langgraph
 langchain-core
 langchain-community
-google-generativeai
-huggingface_hub
+
+# LLM providers
+google-generativeai          # Gemini vision + chat (primary for vision)
+groq                         # Groq chat (primary for text) + Whisper transcription
+openai                       # OpenAI Whisper fallback for speech transcription
+huggingface_hub              # HuggingFace inference (image generation)
