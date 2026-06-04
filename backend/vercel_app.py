@@ -1,12 +1,11 @@
 import os
 import sys
 import traceback
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 
 # Vercel deploys the contents of the 'backend' folder as the root.
-# However, this project is designed as a package ('backend') with package-relative imports.
-# To keep package-relative imports working seamlessly on Vercel, we dynamically
-# create a symlink to make the backend folder importable as a 'backend' package.
-
+# This creates a symlink to make the backend folder importable as a 'backend' package.
 tmp_dir = "/tmp/vercel_backend_pkg"
 os.makedirs(tmp_dir, exist_ok=True)
 symlink_path = os.path.join(tmp_dir, "backend")
@@ -21,7 +20,7 @@ if not os.path.exists(symlink_path):
 if tmp_dir not in sys.path:
     sys.path.insert(0, tmp_dir)
 
-# Initialize app variable at the top-level outer scope for Vercel's static analysis
+# Initialize app variable
 app = None
 
 try:
@@ -29,16 +28,15 @@ try:
     from backend.main import app as _app
     app = _app
 except Exception as e:
-    # If importing fails, construct a fallback FastAPI app to display the error beautifully in the browser.
-    from fastapi import FastAPI
-    from fastapi.responses import HTMLResponse
+    # Capture error details into variables that can be accessed by the fallback_route
+    error_message = str(e)
+    error_traceback = traceback.format_exc()
     
-    # Print the error to stderr so it shows up in Vercel function logs
+    # Print to Vercel logs for server-side debugging
     print("CRITICAL: Failed to import backend.main", file=sys.stderr)
-    traceback.print_exc()
+    print(error_traceback, file=sys.stderr)
     
     fallback_app = FastAPI(title="Backend Load Error")
-    error_traceback = traceback.format_exc()
     
     def html_escape(text: str) -> str:
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&#x27;")
@@ -51,70 +49,24 @@ except Exception as e:
         <head>
             <title>Backend Initialization Error</title>
             <style>
-                body {{
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-                    background-color: #f7fafc;
-                    color: #2d3748;
-                    padding: 40px 20px;
-                    line-height: 1.6;
-                }}
-                .container {{
-                    max-width: 800px;
-                    margin: 0 auto;
-                    background: white;
-                    padding: 30px;
-                    border-radius: 12px;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
-                    border: 1px solid #e2e8f0;
-                }}
-                h1 {{
-                    color: #e53e3e;
-                    margin-top: 0;
-                    font-size: 24px;
-                    border-bottom: 2px solid #fed7d7;
-                    padding-bottom: 12px;
-                }}
-                p {{
-                    font-size: 16px;
-                }}
-                pre {{
-                    background: #1a202c;
-                    color: #edf2f7;
-                    padding: 16px;
-                    border-radius: 8px;
-                    overflow-x: auto;
-                    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-                    font-size: 14px;
-                }}
-                .tip {{
-                    background-color: #ebf8ff;
-                    border-left: 4px solid #3182ce;
-                    color: #2b6cb0;
-                    padding: 12px 16px;
-                    border-radius: 0 8px 8px 0;
-                    margin-top: 20px;
-                    font-size: 14px;
-                }}
+                body {{ font-family: -apple-system, sans-serif; background-color: #f7fafc; color: #2d3748; padding: 40px; line-height: 1.6; }}
+                .container {{ max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }}
+                h1 {{ color: #e53e3e; font-size: 24px; border-bottom: 2px solid #fed7d7; padding-bottom: 10px; }}
+                pre {{ background: #1a202c; color: #edf2f7; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 13px; }}
             </style>
         </head>
         <body>
             <div class="container">
                 <h1>⚠️ Backend Initialization Failed</h1>
-                <p>An exception occurred while importing and setting up the backend application. This is typically due to missing environment variables on Vercel or database configuration issues.</p>
-                
+                <p>An exception occurred while importing the backend application.</p>
                 <h3>Error Details:</h3>
-                <pre>{html_escape(str(e))}</pre>
-                
+                <pre>{html_escape(error_message)}</pre>
                 <h3>Traceback:</h3>
                 <pre>{html_escape(error_traceback)}</pre>
-                
-                <div class="tip">
-                    <strong>💡 Troubleshooting Tip:</strong> Ensure that you have configured all required environment variables in your Vercel Project Dashboard (under <strong>Settings &gt; Environment Variables</strong>). You can copy the values from your local <code>.env</code> file.
-                </div>
             </div>
         </body>
         </html>
         """
         return HTMLResponse(content=html_content, status_code=500)
-
+    
     app = fallback_app

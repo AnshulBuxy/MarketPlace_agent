@@ -101,8 +101,10 @@ async def get_submissions(session: AsyncSession = Depends(get_session)) -> list[
 					pass
 
 		media_urls = []
-		if img_src: media_urls.append(img_src)
-		media_urls.extend(attrs.get("ai_images", []))
+		if img_src:
+			media_urls.append(storage.presign_s3_url(img_src) if isinstance(img_src, str) and img_src.startswith("s3://") else img_src)
+		for ai_url in attrs.get("ai_images", []):
+			media_urls.append(storage.presign_s3_url(ai_url) if isinstance(ai_url, str) and ai_url.startswith("s3://") else ai_url)
 
 		submissions.append({
 			"id": str(p.id),
@@ -161,28 +163,37 @@ async def get_submission(sub_id: str, session: AsyncSession = Depends(get_sessio
 	if "name" in attrs: confidence_scores.append({"label": "Category", "value": 0.95})
 	if "materials" in attrs: confidence_scores.append({"label": "Materials", "value": 0.92})
 	if "description" in attrs: confidence_scores.append({"label": "Description", "value": 0.91})
-	dim = attrs.get("dimensions", "")
-	if isinstance(dim, dict): dim = dim.get("raw", "")
-	
+	raw_dim = attrs.get("dimensions", "")
+	if isinstance(raw_dim, dict):
+		if any(raw_dim.get(k) for k in ("length", "width", "height")):
+			parts = [str(raw_dim.get(k) or "") for k in ("length", "width", "height") if raw_dim.get(k)]
+			dim = "x".join(parts)
+			if raw_dim.get("unit"):
+				dim = f"{dim} {raw_dim['unit']}"
+		else:
+			dim = raw_dim.get("note") or raw_dim.get("raw") or ""
+	else:
+		dim = raw_dim or ""
+
 	status = p.status.value.lower() if p.status else "review"
 	if status == "ingested": status = "review"
 
-	thumbnail = "📦"
-	img_src = p.image_url_enhanced or p.image_url
-	if img_src:
-		thumbnail = img_src
-		if isinstance(thumbnail, str) and thumbnail.startswith("s3://"):
+	def _presign(url: str) -> str:
+		if isinstance(url, str) and url.startswith("s3://"):
 			try:
-				thumbnail = storage.presign_s3_url(thumbnail)
+				return storage.presign_s3_url(url)
 			except Exception:
 				pass
+		return url
 
 	img_src = p.image_url_enhanced or p.image_url
+	thumbnail = _presign(img_src) if img_src else "📦"
+
 	media_urls = []
 	if img_src:
-		media_urls.append(img_src)
-	ai_imgs = attrs.get("ai_images", [])
-	media_urls.extend(ai_imgs)
+		media_urls.append(_presign(img_src))
+	for ai_url in attrs.get("ai_images", []):
+		media_urls.append(_presign(ai_url))
 
 	return {
 		"id": str(p.id),

@@ -129,6 +129,7 @@ function CatalogWizard() {
   } : null;
 
   const [step, setStep] = useState<Step>("detail");
+  const [maxStepReached, setMaxStepReached] = useState(0);
   const [cardsRevealed, setCardsRevealed] = useState(0);
   const [priceCounter, setPriceCounter] = useState(0);
   const [priceConfirmed, setPriceConfirmed] = useState(false);
@@ -263,7 +264,23 @@ function CatalogWizard() {
     return () => clearInterval(id);
   }, [step, selectedMarketplaces]);
 
-  const goTo = (s: Step) => { setAnimKey((k) => k + 1); setStep(s); };
+  const PREV_STEP: Partial<Record<Step, Step>> = {
+    pricing: "detail", optimum: "pricing", catalog: "optimum", publishing: "catalog",
+  };
+
+  const goTo = (s: Step) => {
+    setMaxStepReached((prev) => Math.max(prev, stepIndex(s)));
+    setAnimKey((k) => k + 1);
+    setStep(s);
+  };
+
+  const goBack = () => {
+    const prev = PREV_STEP[step];
+    if (prev) goTo(prev);
+  };
+
+  // A step badge is clickable only if it's been reached before AND is behind the current step
+  const canGoTo = (key: string) => stepIndex(key as Step) < stepIndex(step);
 
   if (loading || !productInfo) {
     return <div className="flex h-screen items-center justify-center text-foreground/60">Loading dynamic submission details...</div>;
@@ -278,23 +295,41 @@ function CatalogWizard() {
         </Link>
         {step !== "live" && (
           <div className="flex items-center gap-1.5">
-            {userSteps.map((s, i) => (
-              <div key={s.key} className="flex items-center gap-1.5">
-                <div className={`flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-medium uppercase tracking-widest transition-all duration-500 ${stepIndex(step) >= i
-                    ? "text-primary-foreground"
-                    : "bg-secondary text-muted-foreground"
-                  }`} style={stepIndex(step) >= i ? { background: "var(--gradient-warm)" } : undefined}>
-                  {stepIndex(step) > i ? <Check className="h-3 w-3" /> : null}
-                  <span className="hidden sm:inline">{s.label}</span>
+            {userSteps.map((s, i) => {
+              const clickable = canGoTo(s.key);
+              return (
+                <div key={s.key} className="flex items-center gap-1.5">
+                  <div
+                    onClick={() => clickable && goTo(s.key as Step)}
+                    className={`flex h-6 items-center gap-1 rounded-full px-2.5 text-[10px] font-medium uppercase tracking-widest transition-all duration-500 ${stepIndex(step) >= i
+                        ? "text-primary-foreground"
+                        : "bg-secondary text-muted-foreground"
+                      } ${clickable ? "cursor-pointer hover:opacity-75" : "cursor-default"}`}
+                    style={stepIndex(step) >= i ? { background: "var(--gradient-warm)" } : undefined}
+                    title={clickable ? `Go back to ${s.label}` : undefined}
+                  >
+                    {stepIndex(step) > i ? <Check className="h-3 w-3" /> : null}
+                    <span className="hidden sm:inline">{s.label}</span>
+                  </div>
+                  {i < userSteps.length - 1 && <div className={`hidden h-px w-4 sm:block ${stepIndex(step) > i ? "bg-primary" : "bg-border"}`} />}
                 </div>
-                {i < userSteps.length - 1 && <div className={`hidden h-px w-4 sm:block ${stepIndex(step) > i ? "bg-primary" : "bg-border"}`} />}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
 
       {/* ─── step content ─── */}
+
+      {/* ─── Back button (shown on all steps that have a previous) ─── */}
+      {PREV_STEP[step] && (
+        <button
+          onClick={goBack}
+          className="mb-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground transition hover:text-foreground"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Back
+        </button>
+      )}
 
       {/* STEP 1 — Product detail */}
       {step === "detail" && (
