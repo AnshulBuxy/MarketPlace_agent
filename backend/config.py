@@ -52,6 +52,14 @@ class Settings(BaseSettings):
 	gupshup_api_key: str | None = None
 	gupshup_app_name: str | None = None
 	whatsapp_webhook_verify_token: str | None = None
+
+	# Meta WhatsApp Cloud API
+	meta_access_token: str = ""
+	meta_phone_number_id: str = ""
+	meta_verify_token: str = "banao_verify_123"
+	meta_waba_id: str = ""
+
+	# Twilio — kept as optional for backward compatibility, no longer used
 	twilio_account_sid: str | None = None
 	twilio_auth_token: str | None = None
 	twilio_whatsapp_number: str | None = None
@@ -61,6 +69,8 @@ class Settings(BaseSettings):
 	groq_api_key: str | None = None
 	groq_fast_routing_model: str = "llama3-70b-8192"
 	groq_whisper_model: str = "whisper-large-v3"
+	groq_vision_model: str = "meta-llama/llama-4-scout-17b-16e-instruct"
+	groq_chat_model: str = "llama-3.3-70b-versatile"
 	huggingface_api_token: str | None = None
 	hf_inference_base_url: str = "https://api-inference.huggingface.co/models"
 	hf_text_model: str | None = None

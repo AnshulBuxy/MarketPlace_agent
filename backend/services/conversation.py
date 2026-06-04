@@ -13,6 +13,10 @@ from ..models.product import Product
 from ..services.llm import GeminiService
 from ..services.storage import StorageService
 from ..services.whatsapp import (
+	parse_meta_payload,
+	send_meta_whatsapp_media_message,
+	send_meta_whatsapp_message,
+	# backward-compat aliases
 	parse_twilio_payload,
 	send_twilio_whatsapp_media_message,
 	send_twilio_whatsapp_message,
@@ -231,7 +235,8 @@ class ConversationManager:
 		product: Product,
 		description: str,
 	) -> tuple[dict[str, Any], dict[str, float]]:
-		image_url = product.image_url_enhanced or product.image_url
+		# Use original image for extraction — enhanced is larger and slower for vision models
+		image_url = product.image_url or product.image_url_enhanced
 		if not image_url:
 			return {}, {}
 		storage = StorageService(self.settings)

@@ -17,7 +17,7 @@ from ..models.inbound_message import InboundMessage
 from ..models.product import Product
 from ..services.speech import SpeechService
 from ..services.storage import StorageService
-from ..services.whatsapp import TwilioInboundMessage
+from ..services.whatsapp import WhatsAppInboundMessage, get_media_bytes
 from ..utils.audit import log_event
 from ..utils.http import fetch_bytes
 
@@ -86,11 +86,11 @@ def _enhance_image(image_bytes: bytes) -> bytes:
 
 
 async def ingest_twilio_message(
-	payload: TwilioInboundMessage,
+	payload: WhatsAppInboundMessage,
 	session: AsyncSession,
 	settings: Settings,
 ) -> IngestionResult:
-	"""Ingest a Twilio WhatsApp message into storage and DB."""
+	"""Ingest a WhatsApp message (Meta Cloud API) into storage and DB."""
 	artisan = await _get_or_create_artisan(session, payload.from_number)
 
 	message_type = MessageType.TEXT if payload.body else MessageType.OTHER
@@ -100,11 +100,11 @@ async def ingest_twilio_message(
 		message_type = MessageType.AUDIO
 
 	inbound = InboundMessage(
-		message_sid=payload.message_sid,
+		message_sid=payload.message_id,
 		from_number=payload.from_number,
 		message_type=message_type,
 		num_media=len(payload.media),
-		media_urls=[{"url": media.url, "content_type": media.content_type} for media in payload.media],
+		media_urls=[{"media_id": media.media_id, "content_type": media.content_type} for media in payload.media],
 		payload=payload.raw_payload,
 		artisan_id=artisan.id,
 	)
@@ -133,19 +133,17 @@ async def ingest_twilio_message(
 		logger.info("Ingestion: product created id=%s", product.id)
 
 		storage = StorageService(settings)
-		auth = None
-		if settings.twilio_account_sid and settings.twilio_auth_token:
-			auth = (settings.twilio_account_sid, settings.twilio_auth_token)
 
 		for media in payload.media:
 			if media.is_image() and product.image_url is None:
-				logger.info("Ingestion: downloading image url=%s", media.url)
-				image_bytes = await fetch_bytes(
-					media.url,
-					auth=auth,
-					timeout_seconds=settings.http_timeout_seconds,
-					max_retries=settings.http_max_retries,
-				)
+				# Use pre-downloaded bytes if the webhook handler already fetched them,
+				# otherwise download directly from Meta Cloud API.
+				if hasattr(media, "_bytes") and media._bytes:
+					image_bytes = media._bytes
+					logger.info("Ingestion: using pre-downloaded image bytes size=%d", len(image_bytes))
+				else:
+					logger.info("Ingestion: downloading image media_id=%s", media.media_id)
+					image_bytes = await get_media_bytes(media.media_id, settings)
 				image_quality_ok = _is_image_clear(image_bytes, settings.min_image_px)
 				blur_variance = _blur_variance(image_bytes)
 				is_blurry = blur_variance < settings.min_blur_variance
@@ -181,23 +179,24 @@ async def ingest_twilio_message(
 				product.attributes["is_blurry"] = is_blurry
 
 			if media.is_audio() and product.audio_url is None:
-				logger.info("Ingestion: downloading audio url=%s", media.url)
-				audio_bytes = await fetch_bytes(
-					media.url,
-					auth=auth,
-					timeout_seconds=settings.http_timeout_seconds,
-					max_retries=settings.http_max_retries,
-				)
-				ext = media.content_type.split("/")[-1]
+				if hasattr(media, "_bytes") and media._bytes:
+					audio_bytes = media._bytes
+					logger.info("Ingestion: using pre-downloaded audio bytes size=%d", len(audio_bytes))
+				else:
+					logger.info("Ingestion: downloading audio media_id=%s", media.media_id)
+					audio_bytes = await get_media_bytes(media.media_id, settings)
+				# Strip codec params e.g. "audio/ogg; codecs=opus" → "audio/ogg"
+				clean_ct = media.content_type.split(";")[0].strip()
+				ext = clean_ct.split("/")[-1]
 				key = f"products/{product.id}/audio.{ext}"
-				product.audio_url = await storage.upload_bytes(key, audio_bytes, media.content_type)
+				product.audio_url = await storage.upload_bytes(key, audio_bytes, clean_ct)
 				logger.info("Ingestion: audio uploaded key=%s", key)
 
 				speech = SpeechService(settings)
 				transcript = await speech.transcribe_audio(
 					audio_bytes,
 					filename=f"audio.{ext}",
-					content_type=media.content_type,
+					content_type=clean_ct,
 				)
 				product.transcript = transcript
 				if response_key == "acknowledgement":
@@ -246,10 +245,10 @@ async def process_ingestion_message(
 	- error: Optional[str]
 	"""
 	try:
-		from ..services.whatsapp import parse_twilio_payload
-		
+		from ..services.whatsapp import parse_meta_payload
+
 		# Parse message
-		payload = parse_twilio_payload(message_data)
+		payload = parse_meta_payload(message_data)
 		
 		# Ingest using existing logic
 		result = await ingest_twilio_message(payload, session, settings)

@@ -11,7 +11,7 @@ from ..config import get_settings
 from ..db import get_session
 from ..models.product import Product
 from ..models.artisan import Artisan
-from ..services.whatsapp import send_twilio_whatsapp_message
+from ..services.whatsapp import send_meta_whatsapp_message as send_twilio_whatsapp_message
 from ..services.storage import StorageService
 from ..services.image_generation import ImageGenerationService
 from ..services.marketplace_pricing import find_marketplace_matches
@@ -41,12 +41,11 @@ async def send_whatsapp_message(request: WhatsAppSendRequest) -> dict:
 	except ValueError as exc:
 		raise HTTPException(status_code=400, detail=str(exc)) from exc
 	except Exception as exc:
-		raise HTTPException(status_code=502, detail=f"Twilio send failed: {exc}") from exc
+		raise HTTPException(status_code=502, detail=f"Meta send failed: {exc}") from exc
 	return {
 		"status": "sent",
-		"message_sid": result.message_sid,
+		"message_id": result.message_id,
 		"to_number": result.to_number,
-		"from_number": result.from_number,
 	}
 
 
@@ -72,8 +71,17 @@ async def get_submissions(session: AsyncSession = Depends(get_session)) -> list[
 		if "materials" in attrs: confidence_scores.append({"label": "Materials", "value": 0.92})
 		if "description" in attrs: confidence_scores.append({"label": "Description", "value": 0.91})
 		
-		dim = attrs.get("dimensions", "")
-		if isinstance(dim, dict): dim = dim.get("raw", "")
+		raw_dim = attrs.get("dimensions", "")
+		if isinstance(raw_dim, dict):
+			if any(raw_dim.get(k) for k in ("length", "width", "height")):
+				parts = [str(raw_dim.get(k) or "") for k in ("length", "width", "height") if raw_dim.get(k)]
+				dim = "x".join(parts)
+				if raw_dim.get("unit"):
+					dim = f"{dim} {raw_dim['unit']}"
+			else:
+				dim = raw_dim.get("note") or raw_dim.get("raw") or ""
+		else:
+			dim = raw_dim or ""
 		
 		# Infer status
 		if p.status:

@@ -14,7 +14,7 @@ class InboundMessage(UUIDMixin, TimestampMixin, Base):
 
     __tablename__ = "inbound_messages"
 
-    message_sid: Mapped[str | None] = mapped_column(String(64))
+    message_sid: Mapped[str | None] = mapped_column(String(255))
     from_number: Mapped[str] = mapped_column(String(32), index=True)
     message_type: Mapped[MessageType] = mapped_column(
         Enum(MessageType, native_enum=False),

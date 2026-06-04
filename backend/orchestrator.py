@@ -211,15 +211,15 @@ class ToolRegistry:
 	async def _whatsapp_send_wrapper(self, to_number: str, body: str) -> dict:
 		"""Wrapper for sending WhatsApp messages."""
 		try:
-			from .services.whatsapp import send_twilio_whatsapp_message
+			from .services.whatsapp import send_meta_whatsapp_message
 			logger.info("WhatsApp send: to=%s body=%s", to_number, (body or "")[:160])
-			result = await send_twilio_whatsapp_message(
+			result = await send_meta_whatsapp_message(
 				self.settings,
-				to_number,
-				body
+				to=to_number,
+				text=body,
 			)
-			logger.info("WhatsApp sent: to=%s sid=%s", to_number, result.message_sid)
-			return {"success": True, "message_sid": result.message_sid}
+			logger.info("WhatsApp sent: to=%s message_id=%s", to_number, result.message_id)
+			return {"success": True, "message_id": result.message_id}
 		except Exception as e:
 			logger.error("WhatsApp send failed: to=%s error=%s", to_number, str(e))
 			return {"success": False, "error": str(e)}
@@ -460,12 +460,12 @@ class AgentOrchestrator:
 								if enhanced_url:
 									storage = StorageService(self.settings)
 									preview_url = storage.presign_s3_url(enhanced_url, expires_in=3600)
-									from .services.whatsapp import send_twilio_whatsapp_media_message
-									await send_twilio_whatsapp_media_message(
+									from .services.whatsapp import send_meta_whatsapp_media_message
+									await send_meta_whatsapp_media_message(
 										self.settings,
-										to_number=state.contact_number,
-										body="Enhanced preview attached.",
+										to=state.contact_number,
 										media_url=preview_url,
+										caption="Enhanced preview attached.",
 									)
 									self.logger.info(
 										"Enhanced preview sent: workflow=%s to=%s",

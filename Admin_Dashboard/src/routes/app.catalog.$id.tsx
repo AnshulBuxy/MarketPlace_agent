@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import {
   ArrowLeft, Search, Sparkles, Check, Package, TrendingUp,
-  Edit3, Loader2, IndianRupee, User, MapPin,
+  Edit3, Loader2, IndianRupee, User, MapPin, Phone,
   Zap, Star, Send, CircleCheck, ShoppingBag, X, ChevronRight,
   Eye, Layers, Camera, Truck, BadgePercent, Users, MessageCircle
 } from "lucide-react";
@@ -321,6 +321,14 @@ function CatalogWizard() {
                   <div>
                     <div className="flex items-center gap-2 text-sm font-medium text-foreground"><User className="h-3.5 w-3.5 text-muted-foreground" />{productInfo.sender.name}</div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{productInfo.sender.location}</div>
+                    {productInfo.sender.phone && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                        <Phone className="h-3 w-3" />
+                        <a href={`https://wa.me/${productInfo.sender.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">
+                          {productInfo.sender.phone}
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -332,7 +340,9 @@ function CatalogWizard() {
                 </div>
                 <div className="rounded-lg border border-border bg-card p-3">
                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Dimensions</div>
-                  <div className="mt-1 text-sm text-foreground">{productInfo.dimensions}</div>
+                  <div className={`mt-1 text-sm ${productInfo.dimensions ? "text-foreground" : "text-muted-foreground italic"}`}>
+                    {productInfo.dimensions || "Not specified"}
+                  </div>
                 </div>
               </div>
               {/* confidence */}
@@ -633,7 +643,7 @@ function CatalogWizard() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-lg border border-border bg-background p-3"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Category</div><div className="mt-0.5 text-sm text-foreground">{productInfo.category}</div></div>
                     <div className="rounded-lg border border-border bg-background p-3"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Materials</div><div className="mt-0.5 text-sm text-foreground">{productInfo.materials.join(", ")}</div></div>
-                    <div className="rounded-lg border border-border bg-background p-3"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Dimensions</div><div className="mt-0.5 text-sm text-foreground">{productInfo.dimensions}</div></div>
+                    <div className="rounded-lg border border-border bg-background p-3"><div className="text-[10px] uppercase tracking-widest text-muted-foreground">Dimensions</div><div className={`mt-0.5 text-sm ${productInfo.dimensions ? "text-foreground" : "text-muted-foreground italic"}`}>{productInfo.dimensions || "Not specified"}</div></div>
                     <div className="rounded-lg border border-border bg-background p-3">
                       <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Price</div>
                       <div className="mt-0.5 flex items-center gap-1 font-display text-lg text-primary"><IndianRupee className="h-3.5 w-3.5" />{pricePrediction.recommended.toLocaleString("en-IN")}</div>

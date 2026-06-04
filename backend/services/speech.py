@@ -26,8 +26,20 @@ class SpeechService:
 
 		api_base_url, api_key, model = provider_config
 		headers = {"Authorization": f"Bearer {api_key}"}
-		data = {"model": model}
-		files = {"file": (filename, audio_bytes, content_type)}
+		# Prompt forces Roman script output for Hinglish audio.
+		# Without this, Whisper defaults to Devanagari for Hindi speech.
+		data = {
+			"model": model,
+			"prompt": (
+				"This is Hinglish audio — a natural mix of Hindi and English spoken in India. "
+				"Transcribe using only Roman (English) letters. "
+				"Do not use Devanagari script. "
+				"Example: write 'naam change karo' not 'नाम चेंज करो'."
+			),
+		}
+		# Groq/OpenAI Whisper don't accept MIME params like "; codecs=opus"
+		clean_content_type = content_type.split(";")[0].strip()
+		files = {"file": (filename, audio_bytes, clean_content_type)}
 		last_error: Exception | None = None
 
 		for attempt in range(self._settings.http_max_retries):
